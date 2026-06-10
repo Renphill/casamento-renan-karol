@@ -20,7 +20,8 @@ const refs = {
     mensagens: db.ref('mensagens'),
     perguntas: db.ref('perguntas'),
     compras: db.ref('compras'),
-    cotas: db.ref('cotas')
+    cotas: db.ref('cotas'),
+    presencas: db.ref('presencas')
 };
 
 // ===== FUNÇÕES AUXILIARES =====
@@ -45,6 +46,34 @@ function salvarPerguntaFirebase(nome, texto, anonimo) {
         data: new Date().toISOString(),
         respondida: false
     });
+}
+
+// Salvar presenca no Firebase
+function salvarPresencaFirebase(nome, whatsapp, comparecera, acompanhantes, mensagem) {
+    return refs.presencas.push({
+        nome: nome,
+        whatsapp: whatsapp,
+        comparecera: comparecera,
+        acompanhantes: parseInt(acompanhantes) || 0,
+        mensagem: mensagem || '',
+        data: new Date().toISOString()
+    });
+}
+
+// Listar todas as presencas
+function listarPresencas(callback) {
+    refs.presencas.on('value', function(snapshot) {
+        const dados = [];
+        snapshot.forEach(function(child) {
+            dados.push({ id: child.key, ...child.val() });
+        });
+        callback(dados.reverse());
+    });
+}
+
+// Excluir presenca
+function excluirPresenca(id) {
+    return refs.presencas.child(id).remove();
 }
 
 // Salvar compra no Firebase
@@ -114,6 +143,14 @@ function excluirCompra(id) {
     return refs.compras.child(id).remove();
 }
 
+// Marcar compra como aprovada (paga manualmente)
+function marcarComoPago(id) {
+    return refs.compras.child(id).update({
+        status: 'aprovado',
+        dataAprovacao: new Date().toISOString()
+    });
+}
+
 // Obter estatísticas
 function obterEstatisticas(callback) {
     const stats = { mensagens: 0, perguntas: 0, compras: 0, totalArrecadado: 0 };
@@ -128,7 +165,11 @@ function obterEstatisticas(callback) {
     }).then(function(s) {
         s.forEach(function(child) {
             const val = child.val();
-            if (val.status === 'aprovado') stats.totalArrecadado += val.total;
+            // Soma o total de TODAS as compras (inclusive pendentes) para o total de compras
+            // Mas o totalArrecadado só conta as aprovadas
+            if (val.status === 'aprovado') {
+                stats.totalArrecadado += (val.total || 0);
+            }
         });
         stats.compras = s.numChildren();
         callback(stats);
