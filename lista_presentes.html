@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lista de Presentes — Renan & Karol</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        :root {
+            --marsala: #722F37;
+            --marsala-escuro: #5B212C;
+            --dourado: #C49A6C;
+            --dourado-claro: #D4B896;
+            --creme: #FDF8F3;
+            --branco: #FFFFFF;
+            --texto: #3D3D3D;
+            --texto-claro: #8B7B7B;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--marsala-escuro); color: var(--texto); overflow-x: hidden; }
+        .container { max-width: 480px; margin: 0 auto; background: var(--branco); position: relative; min-height: 100vh; }
+
+        .header { background: linear-gradient(135deg, var(--marsala) 0%, var(--marsala-escuro) 100%); padding: 24px 20px 20px; text-align: center; color: #fff; position: relative; }
+        .header h1 { font-family: 'Great Vibes', cursive; font-size: 2.2rem; margin-bottom: 6px; }
+        .header p { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.85rem; opacity: 0.85; }
+        .back-btn { position: absolute; top: 20px; left: 16px; color: #fff; text-decoration: none; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; opacity: 0.9; }
+
+        /* CARRINHO FLUTUANTE */
+        .cart-float { position: fixed; bottom: 24px; right: 20px; z-index: 150; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--marsala), var(--marsala-escuro)); border: 3px solid var(--dourado); color: #fff; font-size: 1.6rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 24px rgba(91,33,44,0.35); transition: all 0.3s ease; animation: floatPulse 2s ease-in-out infinite; }
+        .cart-float:hover { transform: scale(1.08); }
+        @keyframes floatPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.03);} }
+        .cart-float-badge { position: absolute; top: -4px; right: -4px; background: var(--dourado); color: #fff; font-size: 0.6rem; font-weight: 700; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--marsala); }
+
+        .cart-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; }
+        .cart-overlay.active { display: block; }
+        .cart-drawer { position: fixed; top: 0; right: 0; width: 100%; max-width: 400px; height: 100vh; background: var(--branco); z-index: 201; transform: translateX(100%); transition: transform 0.35s ease; display: flex; flex-direction: column; }
+        .cart-drawer.active { transform: translateX(0); }
+        .cart-header { padding: 20px 24px; border-bottom: 1px solid rgba(196,154,108,0.15); display: flex; align-items: center; justify-content: space-between; }
+        .cart-header h3 { font-family: 'Great Vibes', cursive; font-size: 1.8rem; color: var(--marsala); }
+        .cart-close { background: none; border: none; font-size: 1.5rem; color: var(--texto-claro); cursor: pointer; width: 36px; height: 36px; border-radius: 50%; }
+        .cart-items { flex: 1; overflow-y: auto; padding: 16px 20px; }
+        .cart-empty { text-align: center; padding: 60px 20px; }
+        .cart-empty .icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.3; }
+        .cart-empty p { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--texto-claro); font-size: 1rem; }
+        .cart-item { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(196,154,108,0.1); align-items: center; }
+        .cart-item-img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; background: var(--creme); flex-shrink: 0; }
+        .cart-item-info { flex: 1; min-width: 0; }
+        .cart-item-name { font-size: 0.75rem; font-weight: 500; color: var(--texto); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cart-item-price { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; color: var(--marsala); font-weight: 600; }
+        .cart-item-qty { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+        .cart-item-qty button { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--marsala); background: transparent; color: var(--marsala); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .cart-item-qty button:disabled { opacity: 0.3; cursor: not-allowed; }
+        .cart-item-qty span { font-size: 0.75rem; font-weight: 600; min-width: 20px; text-align: center; }
+        .cart-item-remove { background: none; border: none; color: var(--texto-claro); font-size: 1rem; cursor: pointer; padding: 4px; }
+        .cart-footer { padding: 20px 24px; border-top: 1px solid rgba(196,154,108,0.15); background: var(--creme); }
+        .cart-total { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .cart-total-value { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--marsala); }
+        .cart-checkout { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--marsala), var(--marsala-escuro)); color: #fff; border: none; border-radius: 50px; font-family: 'Montserrat'; font-size: 0.8rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
+        .cart-continuar { width: 100%; padding: 12px; background: transparent; color: var(--texto-claro); border: none; font-family: 'Montserrat'; font-size: 0.7rem; cursor: pointer; margin-top: 8px; text-decoration: underline; }
+
+        /* MODAL EXPANDIR */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--branco); border-radius: 20px; max-width: 420px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
+        .modal-close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; font-size: 1.3rem; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; }
+        .modal-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 20px 20px 0 0; }
+        .modal-body { padding: 20px; text-align: center; }
+        .modal-name { font-family: 'Great Vibes', cursive; font-size: 1.8rem; color: var(--marsala); margin-bottom: 4px; }
+        .modal-price { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--marsala); margin-bottom: 12px; }
+        .modal-frase { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem; color: var(--texto-claro); line-height: 1.6; margin-bottom: 20px; padding: 12px; background: var(--creme); border-radius: 12px; }
+        .modal-btn { display: inline-block; padding: 14px 40px; background: var(--marsala); color: #fff; border: none; border-radius: 50px; font-family: 'Montserrat'; font-size: 0.75rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
+
+        .tabs-wrapper { position: sticky; top: 0; z-index: 100; background: var(--creme); border-bottom: 1px solid rgba(196,154,108,0.15); }
+        .tabs { display: flex; overflow-x: auto; gap: 8px; padding: 12px 16px; scrollbar-width: none; }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab { flex-shrink: 0; padding: 10px 18px; border-radius: 20px; border: 1.5px solid rgba(114,47,55,0.15); background: transparent; color: var(--marsala); font-family: 'Montserrat'; font-size: 0.6rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+        .tab.active { background: var(--marsala); color: #fff; border-color: var(--marsala); }
+
+        .tab-content { display: none; padding: 16px; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .product-card { background: var(--branco); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px rgba(91,33,44,0.06); border: 1px solid rgba(196,154,108,0.12); transition: transform 0.3s ease; position: relative; }
+        .product-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(91,33,44,0.1); }
+        .product-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--creme); cursor: pointer; }
+        .product-info { padding: 12px; }
+        .product-name { font-size: 0.7rem; font-weight: 500; color: var(--texto); line-height: 1.4; margin-bottom: 4px; }
+        .product-price { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; color: var(--marsala); margin-bottom: 8px; }
+        .btn-add-cart { display: block; width: 100%; padding: 10px; border-radius: 20px; border: none; background: var(--marsala); color: #fff; font-family: 'Montserrat'; font-size: 0.6rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; text-align: center; }
+        .btn-add-cart:hover { background: var(--marsala-escuro); }
+        .btn-add-cart.in-cart { background: linear-gradient(135deg, var(--dourado), #A67B5B); }
+
+        .tag-simbolico { display: inline-block; background: var(--dourado); color: #fff; font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 3px 8px; border-radius: 8px; position: absolute; top: 8px; left: 8px; z-index: 2; }
+        .tag-ja-presenteado { display: inline-block; background: linear-gradient(135deg, #28a745, #34ce57); color: #fff; font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 8px; position: absolute; top: 8px; left: 8px; z-index: 2; }
+        .tag-comprado { display: inline-block; background: linear-gradient(135deg, #6c757d, #868e96); color: #fff; font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 3px 8px; border-radius: 8px; }
+
+        .simbolico-card { background: linear-gradient(180deg, var(--branco) 0%, #FFFBF7 100%); border: 1.5px solid rgba(196,154,108,0.25); padding-top: 24px; }
+        .simbolico-card .product-info { padding-top: 8px; }
+        .simbolico-card .product-price { color: var(--dourado); }
+        .simbolico-desc { font-size: 0.65rem; color: var(--texto-claro); font-style: italic; margin-bottom: 8px; line-height: 1.4; }
+
+        .cotas-compradas { font-size: 0.6rem; color: var(--texto-claro); margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+        .cotas-progress { height: 4px; background: rgba(196,154,108,0.15); border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
+        .cotas-progress-fill { height: 100%; background: linear-gradient(90deg, var(--dourado), var(--marsala)); border-radius: 4px; transition: width 0.5s ease; }
+
+        .section-intro { text-align: center; padding: 20px 16px; background: linear-gradient(135deg, var(--marsala) 0%, var(--marsala-escuro) 100%); color: #fff; }
+        .section-intro h2 { font-family: 'Great Vibes', cursive; font-size: 2rem; margin-bottom: 8px; }
+        .section-intro p { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.95rem; opacity: 0.9; line-height: 1.6; }
+
+        .entrega-msg { margin: 12px 16px; padding: 14px 16px; background: linear-gradient(135deg, rgba(196,154,108,0.08) 0%, rgba(114,47,55,0.04) 100%); border-radius: 12px; border: 1.5px dashed rgba(196,154,108,0.25); }
+        .entrega-msg p { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.9rem; color: var(--marsala); line-height: 1.6; }
+
+        .valor-livre-banner { margin: 20px 16px; padding: 28px 24px; background: linear-gradient(135deg, var(--marsala) 0%, var(--marsala-escuro) 100%); border-radius: 20px; text-align: center; color: #fff; }
+        .valor-livre-banner h3 { font-family: 'Great Vibes', cursive; font-size: 2rem; margin-bottom: 10px; }
+        .btn-livre { display: inline-block; padding: 16px 40px; background: var(--dourado); color: #fff; font-family: 'Montserrat'; font-size: 0.8rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; border-radius: 50px; border: none; cursor: pointer; }
+        .confidencial { font-size: 0.7rem; opacity: 0.6; margin-top: 14px; font-style: italic; }
+
+        .footer { padding: 30px 20px; text-align: center; background: var(--creme); }
+        .footer p { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; color: var(--marsala); font-style: italic; }
+
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--marsala-escuro); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 0.8rem; z-index: 400; opacity: 0; transition: all 0.3s ease; white-space: nowrap; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .cat-title { font-family: 'Great Vibes', cursive; font-size: 1.4rem; color: var(--marsala); margin-bottom: 12px; text-align: center; }
+
+        .ja-presenteado { opacity: 0.65; }
+        .ja-presenteado .product-info { padding-top: 42px; }
+        .ja-presenteado .product-price { text-decoration: line-through; color: var(--texto-claro); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">&larr; Voltar</a>
+            <h1>Lista de Presentes</h1>
+            <p>Renan &amp; Karol &mdash; Nosso Lar Come&ccedil;a com Voc&ecirc;</p>
+        </div>
+
+        <div class="section-intro">
+            <h2>Escolha com Carinho</h2>
+            <p>Estamos construindo nosso lar do zero. Cada presente, por menor que pare&ccedil;a, ser&aacute; um tijolinho na nossa hist&oacute;ria de amor.</p>
+        </div>
+
+        <div class="entrega-msg">
+            <p>&#128230; Para evitar o desconforto de levar o presente no dia do casamento, voc&ecirc; pode comprar por aqui e o produto ser&aacute; entregue diretamente na nossa nova casa. Totalmente seguro! &#9829;</p>
+        </div>
+
+        <div class="tabs-wrapper">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('tudo')">&#127872; Tudo</button>
+                <button class="tab" onclick="showTab('cozinha')">&#127859; Cozinha</button>
+                <button class="tab" onclick="showTab('sala')">&#127968; Sala</button>
+                <button class="tab" onclick="showTab('quarto')">&#128719; Quarto</button>
+                <button class="tab" onclick="showTab('lavanderia')">&#129530; Lavanderia</button>
+                <button class="tab" onclick="showTab('lua')">&#9992; Lua de Mel</button>
+                <button class="tab" onclick="showTab('divertidas')">&#127881; Divertidas</button>
+            </div>
+        </div>
+
+        <div class="tab-content active" id="tudo"><div id="grid-tudo"></div></div>
+        <div class="tab-content" id="cozinha"><div class="products-grid" id="grid-cozinha"></div></div>
+        <div class="tab-content" id="sala"><div class="products-grid" id="grid-sala"></div></div>
+        <div class="tab-content" id="quarto"><div class="products-grid" id="grid-quarto"></div></div>
+        <div class="tab-content" id="lavanderia"><div class="products-grid" id="grid-lavanderia"></div></div>
+        <div class="tab-content" id="lua">
+            <div style="text-align:center;padding:16px;background:linear-gradient(135deg,rgba(196,154,108,0.08) 0%,rgba(114,47,55,0.04) 100%);border-radius:12px;margin-bottom:16px;">
+                <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.95rem;color:var(--marsala);line-height:1.6;">Cada cota custa <strong>R$ 20</strong>. Escolha quantas quiser e ajude a construir nossa lua de mel dos sonhos!</p>
+            </div>
+            <div class="products-grid" id="grid-lua"></div>
+        </div>
+        <div class="tab-content" id="divertidas">
+            <div style="text-align:center;padding:16px;background:linear-gradient(135deg,rgba(196,154,108,0.08) 0%,rgba(114,47,55,0.04) 100%);border-radius:12px;margin-bottom:16px;">
+                <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.95rem;color:var(--marsala);line-height:1.6;">&#127914; <strong>Ajude-nos a evitar...</strong> Se isso aconteceu com seus amigos casados, nos ajude para que <strong>N&Atilde;O aconte&ccedil;a no nosso!</strong></p>
+                <p style="font-size:0.75rem;color:var(--texto-claro);margin-top:6px;">Cotas de <strong>R$ 20</strong> cada. Compre quantas quiser!</p>
+            </div>
+            <div class="products-grid" id="grid-divertidas"></div>
+        </div>
+
+        <div class="valor-livre-banner">
+            <h3>Contribua com o Valor do seu Cora&ccedil;&atilde;o</h3>
+            <p>N&atilde;o encontrou o presente ideal? Contribua com qualquer valor. Cada centavo ser&aacute; lembrado com carinho.</p>
+            <button class="btn-livre" onclick="addValorLivre()">&#128150; Valor Livre</button>
+            <p class="confidencial">Sua contribui&ccedil;&atilde;o ser&aacute; confidencial. Guardaremos de cora&ccedil;&atilde;o cada gesto de carinho!</p>
+        </div>
+
+        <div class="footer"><p>Com amor, Renan &amp; Karol &#9829;</p></div>
+    </div>
+
+    <!-- CARRINHO -->
+    <button class="cart-float" onclick="openCart()">&#128722;<span class="cart-float-badge" id="cart-float-badge" style="display:none;">0</span></button>
+    <div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+    <div class="cart-drawer" id="cart-drawer">
+        <div class="cart-header"><h3>&#128722; Meu Carrinho</h3><button class="cart-close" onclick="closeCart()">&times;</button></div>
+        <div class="cart-items" id="cart-items">
+            <div class="cart-empty"><div class="icon">&#128722;</div><p>Seu carrinho est&aacute; vazio.<br>Adicione presentes com carinho!</p></div>
+        </div>
+        <div class="cart-footer" id="cart-footer" style="display:none;">
+            <div class="cart-total"><span class="cart-total-label">Total:</span><span class="cart-total-value" id="cart-total">R$ 0</span></div>
+            <button class="cart-checkout" id="cart-checkout-btn" onclick="checkoutCart()">&#128179; Finalizar Compra</button>
+            <button class="cart-continuar" onclick="closeCart()">Continuar comprando</button>
+        </div>
+    </div>
+
+    <!-- MODAL EXPANDIR -->
+    <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <img class="modal-img" id="modal-img" src="" alt="">
+            <div class="modal-body">
+                <div class="modal-name" id="modal-name"></div>
+                <div class="modal-price" id="modal-price"></div>
+                <div class="modal-frase" id="modal-frase"></div>
+                <button class="modal-btn" id="modal-btn" onclick="modalAction()">Presentear</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+<script>
+const MP_ACCESS_TOKEN = 'APP_USR-7516116368254371-060822-7998de88124e7f0f1d28894a8043e4ce-289404449';
+const MP_API_URL = 'https://api.mercadopago.com/checkout/preferences';
+
+let cart = JSON.parse(localStorage.getItem('rk_cart') || '[]');
+let modalProduto = null;
+let isProcessingPayment = false; // proteção contra cliques duplos
+
+function saveCart() { localStorage.setItem('rk_cart', JSON.stringify(cart)); updateCartBadge(); renderCartDrawer(); }
+
+function updateCartBadge() {
+    const badge = document.getElementById('cart-float-badge');
+    const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+    badge.style.display = totalItems > 0 ? 'flex' : 'none';
+    badge.textContent = totalItems;
+}
+
+function openCart() { document.getElementById('cart-overlay').classList.add('active'); document.getElementById('cart-drawer').classList.add('active'); document.body.style.overflow = 'hidden'; renderCartDrawer(); }
+function closeCart() { document.getElementById('cart-overlay').classList.remove('active'); document.getElementById('cart-drawer').classList.remove('active'); document.body.style.overflow = ''; }
+
+function renderCartDrawer() {
+    const itemsContainer = document.getElementById('cart-items');
+    const footer = document.getElementById('cart-footer');
+    if (cart.length === 0) {
+        itemsContainer.innerHTML = '<div class="cart-empty"><div class="icon">&#128722;</div><p>Seu carrinho est&aacute; vazio.<br>Adicione presentes com carinho!</p></div>';
+        footer.style.display = 'none'; return;
+    }
+    let total = 0, html = '';
+    cart.forEach((item, idx) => {
+        const subtotal = item.price * item.qty; total += subtotal;
+        const isFisico = !item.simbolico;
+        html += '<div class="cart-item"><img src="'+item.img+'" alt="'+item.name+'" class="cart-item-img" onerror="this.style.display=\'none\'"><div class="cart-item-info"><div class="cart-item-name">'+item.name+'</div><div class="cart-item-price">R$ '+item.price.toLocaleString('pt-BR')+(item.qty>1?' x '+item.qty:'')+'</div><div class="cart-item-qty"><button onclick="updateCartQty('+idx+',-1)">-</button><span>'+item.qty+'</span><button onclick="updateCartQty('+idx+',1)" '+(isFisico?'disabled':'')+'>+</button></div></div><button class="cart-item-remove" onclick="removeCartItem('+idx+')">&#128465;</button></div>';
+    });
+    itemsContainer.innerHTML = html;
+    document.getElementById('cart-total').textContent = 'R$ ' + total.toLocaleString('pt-BR');
+    footer.style.display = 'block';
+}
+
+// TOGGLE: Fisico = adiciona/remove, Simbolico = adiciona mais
+function toggleCart(id, name, price, img, simbolico) {
+    const existing = cart.find(item => item.id === id);
+    if (existing && !simbolico) {
+        // FISICO: remove do carrinho
+        removeCartItem(cart.indexOf(existing));
+        renderAll();
+        showToast(name + ' removido do carrinho');
+        return;
+    }
+    // SIMBOLICO ou novo: adiciona
+    addToCart(id, name, price, img, simbolico);
+}
+
+function addToCart(id, name, price, img, simbolico) {
+    const produto = findProduto(id);
+    if (produto && produto.simbolico && produto.compradas >= produto.total) {
+        produto.total += 5;
+        showToast('Meta atingida! Novas cotas disponíveis!');
+    }
+    const existing = cart.find(item => item.id === id);
+    if (existing) { existing.qty += 1; } 
+    else { cart.push({ id, name, price, img, simbolico: simbolico || false, qty: 1 }); }
+    saveCart(); renderAll();
+    showToast(name + ' adicionado ao carrinho!');
+}
+
+function updateCartQty(idx, delta) {
+    cart[idx].qty += delta;
+    if (cart[idx].qty <= 0) cart.splice(idx, 1);
+    saveCart(); renderAll();
+}
+
+function removeCartItem(idx) { cart.splice(idx, 1); saveCart(); renderAll(); }
+
+function addValorLivre() {
+    const valor = prompt('Digite o valor que deseja contribuir (R$):');
+    if (valor && parseFloat(valor) > 0) {
+        cart.push({ id: 'livre-'+Date.now(), name: 'Contribui\u00e7\u00e3o Livre', price: parseFloat(valor), img: 'images/simb-lua.jpg', simbolico: false, qty: 1 });
+        saveCart(); showToast('Contribui\u00e7\u00e3o adicionada!'); openCart();
+    }
+}
+
+async function checkoutCart() {
+    if (cart.length === 0) { showToast('Carrinho vazio!'); return; }
+    if (isProcessingPayment) { showToast('Aguarde, processando...'); return; }
+    
+    isProcessingPayment = true;
+    
+    // Encontra o botão de forma robusta
+    let btn = document.getElementById('cart-checkout-btn');
+    if (!btn) btn = document.querySelector('.cart-checkout');
+    if (!btn) {
+        // Último recurso: procura qualquer botão dentro do cart-footer
+        const footer = document.getElementById('cart-footer');
+        if (footer) btn = footer.querySelector('button');
+    }
+    
+    const textoOriginal = btn ? btn.innerHTML : '&#128179; Finalizar Compra';
+    
+    // Sempre reativa o botão após 15 segundos, mesmo se algo der errado
+    const safetyTimeout = setTimeout(function() {
+        isProcessingPayment = false;
+        if (btn) { btn.disabled = false; btn.innerHTML = textoOriginal; }
+        showToast('Tempo esgotado. Tente novamente.');
+    }, 15000);
+    
+    try {
+        if (btn) { btn.disabled = true; btn.textContent = 'Processando...'; }
+        showToast('Gerando pagamento seguro...');
+        
+        const items = cart.map(function(item) { return { title: 'Presente - '+item.name, quantity: item.qty, unit_price: item.price }; });
+        
+        const controller = new AbortController();
+        const fetchTimeout = setTimeout(function() { controller.abort(); }, 10000);
+        
+        const response = await fetch(MP_API_URL, {
+            method: 'POST',
+            signal: controller.signal,
+            headers: { 'Authorization': 'Bearer '+MP_ACCESS_TOKEN, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: items, back_urls: { success: 'https://npuf5ea3gxuyw.kimi.page/lista_presentes.html?status=success', failure: 'https://npuf5ea3gxuyw.kimi.page/lista_presentes.html?status=failure', pending: 'https://npuf5ea3gxuyw.kimi.page/lista_presentes.html?status=pending' }, auto_return: 'approved', payer: { name: 'Convidado' } })
+        });
+        clearTimeout(fetchTimeout);
+        clearTimeout(safetyTimeout);
+        
+        if (!response.ok) {
+            showToast('Erro no servidor. Tente novamente.');
+            isProcessingPayment = false;
+            if (btn) { btn.disabled = false; btn.innerHTML = textoOriginal; }
+            return;
+        }
+        
+        const data = await response.json();
+        if (data.init_point) {
+            // Salva a compra no Firebase antes de redirecionar
+            const itensCompra = cart.map(function(item) { return { name: item.name, price: item.price, qty: item.qty }; });
+            const totalCompra = cart.reduce(function(s, item) { return s + item.price * item.qty; }, 0);
+            if (typeof salvarCompraFirebase === 'function') {
+                salvarCompraFirebase(itensCompra, totalCompra, 'pendente').then(function() {
+                    console.log('Compra salva no Firebase!');
+                }).catch(function(err) { console.error('Erro ao salvar compra:', err); });
+            }
+            cart = []; saveCart();
+            showToast('Redirecionando para pagamento...');
+            closeCart();
+            // Redireciona na mesma aba (mais confiável que window.open)
+            setTimeout(function() { window.location.href = data.init_point; }, 200);
+            isProcessingPayment = false;
+            if (btn) { btn.disabled = false; btn.innerHTML = textoOriginal; }
+        } else {
+            showToast('Erro ao gerar link. Tente novamente.');
+            isProcessingPayment = false;
+            if (btn) { btn.disabled = false; btn.innerHTML = textoOriginal; }
+        }
+    } catch (err) {
+        clearTimeout(safetyTimeout);
+        console.error('Erro checkout:', err);
+        showToast('Erro na conexão. Tente novamente.');
+        isProcessingPayment = false;
+        if (btn) { btn.disabled = false; btn.innerHTML = textoOriginal; }
+    }
+}
+
+// ===== MODAL =====
+function openModal(id) {
+    const p = findProduto(id);
+    if (!p) return;
+    modalProduto = p;
+    document.getElementById('modal-img').src = p.img;
+    document.getElementById('modal-name').textContent = p.name;
+    document.getElementById('modal-price').textContent = p.simbolico ? 'R$ 20/cota' : 'R$ ' + p.price.toLocaleString('pt-BR');
+    document.getElementById('modal-frase').textContent = p.frase || p.desc || '';
+    const inCart = cart.find(item => item.id === p.id);
+    const inCartQty = inCart ? inCart.qty : 0;
+    const btn = document.getElementById('modal-btn');
+    if (p.simbolico) { btn.textContent = inCartQty > 0 ? 'Adicionar mais (' + inCartQty + ')' : 'Presentear'; }
+    else { btn.textContent = inCartQty > 0 ? 'No Carrinho (clique para remover)' : 'Presentear'; }
+    btn.onclick = function() { 
+        if (p.simbolico) { addToCart(p.id, p.name, p.price, p.img, true); }
+        else { toggleCart(p.id, p.name, p.price, p.img, false); }
+        openModal(p.id);
+    };
+    document.getElementById('modal-overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+function closeModal(e) { if (e && e.target !== e.currentTarget) return; document.getElementById('modal-overlay').classList.remove('active'); document.body.style.overflow = ''; }
+
+function findProduto(id) { for (const cat in produtos) { const p = produtos[cat].find(item => item.id === id); if (p) return p; } return null; }
+
+// ===== PRODUTOS =====
+const produtos = {
+    cozinha: [
+        { id: 'c1', name: 'Jogo de Panelas de Cerâmica', price: 250, img: 'images/prod-c1.jpg', frase: 'Panelas novas, refeições cheias de amor!' },
+        { id: 'c2', name: 'Panela de Pressão Elétrica', price: 180, img: 'images/prod-c2.jpg', frase: 'Feijão cozido em minutos, amor eterno.' },
+        { id: 'c3', name: 'Aparelho de Jantar', price: 200, img: 'images/prod-c3.jpg', frase: 'Mesa posta, coração aquecido.' },
+        { id: 'c4', name: 'Máquina de Café Expresso', price: 220, img: 'images/prod-c4.jpg', frase: 'Café quentinho para começar o dia juntos.' },
+        { id: 'c5', name: 'Geladeira', price: 600, img: 'images/prod-c5.jpg', frase: 'O coração da nossa cozinha!' },
+        { id: 'c6', name: 'Fogão', price: 450, img: 'images/prod-c6.jpg', jaPresenteado: true, frase: 'Onde as melhores receitas serão feitas.' },
+        { id: 'c7', name: 'Bebedouro Elétrico', price: 150, img: 'images/prod-c7.jpg', frase: 'Água fresca sempre ao alcance.' },
+        { id: 'c8', name: 'Micro-ondas', price: 220, img: 'images/prod-c8.jpg', jaPresenteado: true, frase: 'Rapidez nos dias corridos de casados.' },
+        { id: 'c9', name: 'Airfryer', price: 180, img: 'images/prod-c9.jpg', jaPresenteado: true, frase: 'Crocância sem culpa, petiscos de casal!' },
+        { id: 'c10', name: 'Lava-louças', price: 400, img: 'images/prod-c10.jpg', frase: 'Mais tempo juntos, menos louça na pia!' },
+        { id: 'c11', name: 'Forno Elétrico', price: 280, img: 'images/prod-c11.jpg', frase: 'Bolos, pizzas e muito amor assado.' },
+        { id: 'c12', name: 'Fogão de Indução', price: 350, img: 'images/prod-c12.jpg', frase: 'Tecnologia e sabor na cozinha.' },
+        { id: 'c13', name: 'Chaleira Elétrica', price: 100, img: 'images/prod-c13.jpg', jaPresenteado: true, frase: 'Chá da tarde a dois, todos os dias.' },
+        { id: 'c14', name: 'Churrasqueira Elétrica', price: 150, img: 'images/prod-c14.jpg', frase: 'Churrasco de casal, sem sair de casa!' },
+        { id: 'c15', name: 'Máquina de Sorvete', price: 150, img: 'images/prod-c15.jpg', jaPresenteado: true, frase: 'Sorvete caseiro para dias quentes de amor.' },
+        { id: 'c16', name: 'Mixer 3 em 1', price: 140, img: 'images/prod-c16.jpg', frase: 'Tritura, bate e mistura o amor!' },
+        { id: 'c17', name: 'Liquidificador', price: 120, img: 'images/prod-c17.jpg', jaPresenteado: true, frase: 'Vitaminas de manhã, amor à tarde.' },
+        { id: 'c18', name: 'Processador de Alimentos', price: 175, img: 'images/prod-c18.jpg', frase: 'Corta, rala e facilita a vida!' },
+    ],
+    sala: [
+        { id: 's1', name: 'Mesa de Centro', price: 200, img: 'images/prod-s1.jpg', frase: 'Onde o café da manhã acontece aos fins de semana.' },
+        { id: 's2', name: 'Painel para TV', price: 180, img: 'images/prod-s2.jpg', jaPresenteado: true, frase: 'Netflix e abraço, nosso programa favorito.' },
+        { id: 's3', name: 'Smart TV', price: 700, img: 'images/prod-s3.jpg', frase: 'Sessão cinema em casa, todo dia!' },
+        { id: 's4', name: 'Tapetes Grandes', price: 150, img: 'images/prod-s4.jpg', frase: 'Conforto sob os pés e no coração.' },
+        { id: 's5', name: 'Cortinas Grandes', price: 130, img: 'images/prod-s5.jpg', frase: 'Cortinas novas, privacidade e charme.' },
+        { id: 's6', name: 'Luminária de Piso', price: 160, img: 'images/prod-s6.jpg', frase: 'Luz quente para noites de conversa.' },
+        { id: 's7', name: 'Luminária de Mesa', price: 100, img: 'images/prod-s7.jpg', frase: 'Iluminação perfeita para momentos especiais.' },
+        { id: 's8', name: 'Alexa', price: 250, img: 'images/prod-s8.jpg', jaPresenteado: true, frase: 'Assistente virtual para a vida de casados!' },
+        { id: 's9', name: 'Robô Aspirador', price: 350, img: 'images/prod-s9.jpg', jaPresenteado: true, frase: 'Limpo sem esforço, mais tempo para nós.' },
+        { id: 's10', name: 'Ar-condicionado', price: 500, img: 'images/prod-s10.jpg', frase: 'Noite fresca e sono tranquilo.' },
+        { id: 's11', name: 'Umidificador', price: 120, img: 'images/prod-s11.jpg', jaPresenteado: true, frase: 'Ar puro e ambiente agradável.' },
+        { id: 's12', name: 'Puff', price: 120, img: 'images/prod-s12.jpg', frase: 'Conforto extra para relaxar juntos.' },
+        { id: 's13', name: 'Aspirador de Pó', price: 150, img: 'images/prod-s13.jpg', frase: 'Casa limpa, coração leve!' },
+    ],
+    quarto: [
+        { id: 'q1', name: 'Jogo de Cama King', price: 200, img: 'images/prod-q1.jpg', frase: 'Lençóis macios para sonhar juntos.' },
+        { id: 'q2', name: 'Edredom', price: 150, img: 'images/prod-q2.jpg', frase: 'Aconchego nos dias frios de amor.' },
+        { id: 'q3', name: 'Ventilador', price: 180, img: 'images/prod-q3.jpg', jaPresenteado: true, frase: 'Brisa fresca para noites de verão.' },
+        { id: 'q4', name: 'Espelho de Corpo Inteiro', price: 120, img: 'images/prod-q4.jpg', frase: 'Para se admirar antes de sair juntos!' },
+        { id: 'q5', name: 'Cama de Casal', price: 800, img: 'images/prod-q5.jpg', frase: 'Onde nossos sonhos se encontram.' },
+        { id: 'q6', name: 'Guarda-roupa', price: 500, img: 'images/prod-q6.jpg', frase: 'Espaço para as roupas de dois apaixonados.' },
+        { id: 'q7', name: 'Moto', price: 2500, img: 'images/prod-q7.jpg', frase: 'Aventuras sobre duas rodas, lado a lado!' },
+    ],
+    lavanderia: [
+        { id: 'l1', name: 'Máquina de Lavar', price: 700, img: 'images/prod-l1.jpg', jaPresenteado: true, frase: 'Roupas limpas, vida organizada!' },
+        { id: 'l2', name: 'Tanquinho', price: 280, img: 'images/prod-l2.jpg', frase: 'Lavanderia prática no dia a dia.' },
+        { id: 'l3', name: 'Passadeira a Vapor', price: 200, img: 'images/prod-l3.jpg', frase: 'Roupas impecáveis para sair juntos!' },
+        { id: 'l4', name: 'Escada Dobrável', price: 160, img: 'images/prod-l4.jpg', frase: 'Alcance o que for preciso, juntos!' },
+        { id: 'l5', name: 'Kit de Ferramentas', price: 145, img: 'images/prod-l5.jpg', frase: 'Para os concertos da casa e do coração.' },
+        { id: 'l6', name: 'Furadeira', price: 150, img: 'images/prod-l6.jpg', jaPresenteado: true, frase: 'O maridão vai adorar essa!' },
+        { id: 'l7', name: 'Kit de Cabides Organizadores', price: 80, img: 'images/prod-l7.jpg', jaPresenteado: true, frase: 'Organização é tudo na vida de casados!' },
+    ],
+    lua: [
+        { id: 'lua1', name: 'Cota da Passagem', price: 20, img: 'images/simb-lua.jpg', simbolico: true, desc: 'Nos leve até o destino dos sonhos', compradas: 3, total: 10, frase: 'Cada cota é um quilômetro mais perto do paraíso!' },
+        { id: 'lua2', name: 'Cota do Hotel', price: 20, img: 'images/simb-lua.jpg', simbolico: true, desc: 'Uma noite aconchegante a dois', compradas: 1, total: 10, frase: 'Um quarto só nosso, cheio de amor!' },
+        { id: 'lua3', name: 'Cota do Jantar Romântico', price: 20, img: 'images/simb-lua.jpg', simbolico: true, desc: 'À luz de velas, vinho e nós dois', compradas: 1, total: 10, frase: 'Jantar à luz de velas, amor no ar!' },
+        { id: 'lua4', name: 'Cota do Passeio Turístico', price: 20, img: 'images/simb-lua.jpg', simbolico: true, desc: 'Conhecendo lugares novos juntos', compradas: 0, total: 10, frase: 'Aventuras e memórias inesquecíveis!' },
+        { id: 'lua5', name: 'Cota do Aluguel de Carro', price: 20, img: 'images/simb-lua.jpg', simbolico: true, desc: 'Para explorar cada cantinho', compradas: 0, total: 10, frase: 'Quatro rodas para explorar o mundo a dois!' },
+        { id: 'lua6', name: 'Cota das Fotos da Viagem', price: 20, img: 'images/simb-lua.jpg', simbolico: true, desc: 'Para eternizar cada momento', compradas: 0, total: 10, frase: 'Fotos que vão para o álbum de casal!' },
+    ],
+    divertidas: [
+        { id: 'd1', name: '1ª Viagem de Carro dos Casados', price: 20, img: 'images/simb-divertidas.jpg', simbolico: true, desc: 'A primeira aventura sobre quatro rodas', compradas: 1, total: 10, frase: 'Estrada aberta, amor no volante!' },
+        { id: 'd2', name: 'Viagem Surpresa', price: 20, img: 'images/simb-divertidas.jpg', simbolico: true, desc: 'Para momentos inesperados e especiais', compradas: 1, total: 10, frase: 'Surpresa boa é surpresa de casal!' },
+        { id: 'd3', name: 'Final de Semana Romântico', price: 20, img: 'images/simb-divertidas.jpg', simbolico: true, desc: 'Dias só de nós dois e muito amor', compradas: 1, total: 10, frase: '48 horas só nosso, sem distrações!' },
+        { id: 'd4', name: 'Noivo Não Esquece a Data!', price: 20, img: 'images/simb-divertidas.jpg', simbolico: true, desc: 'Porque ele já esqueceu 3 vezes esse mês...', compradas: 3, total: 10, frase: 'Seguro contra o maridão esquecido!' },
+        { id: 'd5', name: '1º Churrasco dos Casados', price: 20, img: 'images/simb-divertidas.jpg', simbolico: true, desc: 'Carvão, carne e muita risada', compradas: 0, total: 10, frase: 'O primeiro de muitos churrascos juntos!' },
+        { id: 'd6', name: 'Brigas Terminam em Pizza', price: 20, img: 'images/simb-divertidas.jpg', simbolico: true, desc: 'Melhor final para qualquer discussão', compradas: 2, total: 10, frase: 'Pizza resolve tudo, principalmente briga!' },
+        { id: 'd7', name: 'Mimos da Esposa', price: 20, img: 'images/simb-divertidas.jpg', simbolico: true, desc: 'Chocolate, flores e carinho sem fim', compradas: 5, total: 10, frase: 'Mimos que tocam o coração da noiva!' },
+        { id: 'd8', name: 'Videogame do Marido', price: 20, img: 'images/simb-divertidas.jpg', simbolico: true, desc: 'Se a esposa deixar, claro...', compradas: 3, total: 10, frase: 'Diversão garantida para o noivo!' },
+        { id: 'd9', name: '\u201cDesculpa, Você Tinha Razão\u201d', price: 20, img: 'images/simb-divertidas.jpg', simbolico: true, desc: 'Ela sempre tem. Sempre.', compradas: 2, total: 10, frase: 'A cota mais honesta de todas!' },
+    ]
+};
+
+function renderCard(p, cat) {
+    const inCart = cart.find(item => item.id === p.id);
+    const inCartQty = inCart ? inCart.qty : 0;
+    let btnText, btnClass, btnAction;
+    if (p.simbolico) {
+        btnText = inCartQty > 0 ? 'Adicionar mais (' + inCartQty + ')' : 'Presentear';
+        btnClass = inCartQty > 0 ? 'btn-add-cart in-cart' : 'btn-add-cart';
+        btnAction = "addToCart('"+p.id+"', '"+p.name.replace(/'/g, "\\'")+"', 20, '"+p.img+"', true)";
+    } else {
+        btnText = inCartQty > 0 ? 'No Carrinho' : 'Presentear';
+        btnClass = inCartQty > 0 ? 'btn-add-cart in-cart' : 'btn-add-cart';
+        btnAction = "toggleCart('"+p.id+"', '"+p.name.replace(/'/g, "\\'")+"', "+p.price+", '"+p.img+"', false)";
+    }
+    if (p.jaPresenteado) {
+        return '<div class="product-card ja-presenteado"><span class="tag-ja-presenteado">&#10004; Já Presenteado</span><img src="'+p.img+'" alt="'+p.name+'" class="product-img" onclick="openModal(\''+p.id+'\')"><div class="product-info"><div class="product-name">'+p.name+'</div><div class="product-price">R$ '+p.price.toLocaleString('pt-BR')+'</div><button class="btn-add-cart" style="background:var(--texto-claro);cursor:default;" disabled>&#10004; Já Enviado</button></div></div>';
+    }
+    if (p.simbolico) {
+        const progressPct = ((p.compradas || 0) / (p.total || 10)) * 100;
+        return '<div class="product-card simbolico-card"><span class="tag-simbolico">Cota R$ 20</span><img src="'+p.img+'" alt="'+p.name+'" class="product-img" onclick="openModal(\''+p.id+'\')"><div class="product-info"><div class="product-name">'+p.name+'</div><div class="simbolico-desc">'+p.desc+'</div><div class="cotas-compradas"><span class="tag-comprado">'+(p.compradas||0)+'/'+(p.total||10)+' cotas</span></div><div class="cotas-progress"><div class="cotas-progress-fill" style="width:'+progressPct+'%"></div></div><div class="product-price">R$ 20/cota</div><button class="'+btnClass+'" id="btn-'+p.id+'" onclick="'+btnAction+'">'+btnText+'</button></div></div>';
+    }
+    return '<div class="product-card"><img src="'+p.img+'" alt="'+p.name+'" class="product-img" onclick="openModal(\''+p.id+'\')"><div class="product-info"><div class="product-name">'+p.name+'</div><div class="product-price">R$ '+p.price.toLocaleString('pt-BR')+'</div><button class="'+btnClass+'" id="btn-'+p.id+'" onclick="'+btnAction+'">'+btnText+'</button></div></div>';
+}
+
+function renderAll() {
+    for (const cat of ['cozinha', 'sala', 'quarto', 'lavanderia', 'lua', 'divertidas']) {
+        const grid = document.getElementById('grid-' + cat);
+        if (grid) grid.innerHTML = produtos[cat].map(p => renderCard(p, cat)).join('');
+    }
+    const gridTudo = document.getElementById('grid-tudo');
+    if (gridTudo) {
+        let allItems = '';
+        const ordem = ['cozinha', 'sala', 'quarto', 'lavanderia', 'lua', 'divertidas'];
+        for (const cat of ordem) {
+            const catLabel = { cozinha: 'Cozinha', sala: 'Sala', quarto: 'Quarto', lavanderia: 'Lavanderia', lua: 'Lua de Mel', divertidas: 'Divertidas' }[cat];
+            allItems += '<div class="cat-title" style="grid-column:1/-1;margin-top:8px;">'+catLabel+'</div>';
+            allItems += produtos[cat].map(p => renderCard(p, cat)).join('');
+        }
+        gridTudo.innerHTML = '<div class="products-grid">' + allItems + '</div>';
+    }
+}
+
+function showTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabName).classList.add('active');
+    const tabBtn = Array.from(document.querySelectorAll('.tab')).find(t => t.getAttribute('onclick').includes("'" + tabName + "'"));
+    if (tabBtn) tabBtn.classList.add('active');
+}
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+updateCartBadge();
+renderAll();
+</script>
+</body>
+</html>

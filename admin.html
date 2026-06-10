@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin — Renan & Karol</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        :root {
+            --marsala: #722F37;
+            --marsala-escuro: #5B212C;
+            --dourado: #C49A6C;
+            --creme: #FDF8F3;
+            --branco: #FFFFFF;
+            --texto: #3D3D3D;
+            --texto-claro: #8B7B7B;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--marsala-escuro); color: var(--texto); }
+        .container { max-width: 800px; margin: 0 auto; background: var(--branco); min-height: 100vh; }
+
+        /* LOGIN */
+        .login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: linear-gradient(135deg, var(--marsala) 0%, var(--marsala-escuro) 100%); }
+        .login-box { background: var(--branco); padding: 40px 30px; border-radius: 20px; text-align: center; max-width: 360px; width: 100%; }
+        .login-box h1 { font-family: 'Great Vibes', cursive; font-size: 2.5rem; color: var(--marsala); margin-bottom: 8px; }
+        .login-box p { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--texto-claro); margin-bottom: 24px; }
+        .login-box input { width: 100%; padding: 14px 16px; border: 1.5px solid rgba(114,47,55,0.15); border-radius: 12px; font-family: 'Montserrat'; font-size: 0.9rem; margin-bottom: 12px; }
+        .login-box button { width: 100%; padding: 14px; background: var(--marsala); color: #fff; border: none; border-radius: 12px; font-family: 'Montserrat'; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
+        .login-box .erro { color: #dc3545; font-size: 0.8rem; margin-top: 8px; display: none; }
+
+        /* DASHBOARD */
+        .dashboard { display: none; padding: 20px; }
+        .dash-header { background: linear-gradient(135deg, var(--marsala), var(--marsala-escuro)); color: #fff; padding: 24px 20px; border-radius: 16px; margin-bottom: 20px; }
+        .dash-header h1 { font-family: 'Great Vibes', cursive; font-size: 2rem; }
+        .dash-header p { font-family: 'Cormorant Garamond', serif; font-style: italic; opacity: 0.8; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+        .stat-card { background: var(--creme); padding: 20px; border-radius: 14px; text-align: center; }
+        .stat-number { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 600; color: var(--marsala); }
+        .stat-label { font-size: 0.7rem; color: var(--texto-claro); text-transform: uppercase; letter-spacing: 1px; }
+
+        .tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; }
+        .tab { flex-shrink: 0; padding: 10px 20px; border-radius: 20px; border: 1.5px solid rgba(114,47,55,0.15); background: transparent; color: var(--marsala); font-family: 'Montserrat'; font-size: 0.7rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+        .tab.active { background: var(--marsala); color: #fff; }
+
+        .section-content { display: none; }
+        .section-content.active { display: block; }
+
+        .item-card { background: var(--creme); padding: 16px; border-radius: 12px; margin-bottom: 10px; position: relative; }
+        .item-card .nome { font-weight: 600; font-size: 0.85rem; color: var(--marsala); margin-bottom: 4px; }
+        .item-card .texto { font-size: 0.8rem; color: var(--texto); line-height: 1.5; margin-bottom: 8px; }
+        .item-card .data { font-size: 0.65rem; color: var(--texto-claro); }
+        .item-card .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; margin-left: 8px; }
+        .badge-anonimo { background: #6c757d; color: #fff; }
+        .badge-nao-lido { background: var(--marsala); color: #fff; }
+        .btn-excluir { position: absolute; top: 12px; right: 12px; background: #dc3545; color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 0.6rem; cursor: pointer; }
+        .btn-excluir:hover { background: #c82333; }
+
+        .vazio { text-align: center; padding: 60px 20px; color: var(--texto-claro); font-style: italic; }
+
+        .logout-btn { position: fixed; top: 16px; right: 16px; background: rgba(255,255,255,0.2); color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 0.7rem; cursor: pointer; z-index: 10; }
+
+        .compra-item { border-left: 3px solid var(--dourado); padding-left: 12px; }
+        .compra-total { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--marsala); font-weight: 600; }
+        .compra-status { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; }
+        .status-aprovado { background: #28a745; color: #fff; }
+        .status-pendente { background: #ffc107; color: #000; }
+
+        @media (min-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- TELA DE LOGIN -->
+        <div class="login-screen" id="login-screen">
+            <div class="login-box">
+                <h1>Área dos Noivos</h1>
+                <p>Painel administrativo do casamento</p>
+                <input type="password" id="senha-input" placeholder="Digite a senha..." onkeydown="if(event.key==='Enter')fazerLogin()">
+                <button onclick="fazerLogin()">Entrar</button>
+                <div class="erro" id="login-erro">Senha incorreta!</div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div class="dashboard" id="dashboard">
+            <button class="logout-btn" onclick="sair()">Sair</button>
+            <div class="dash-header">
+                <h1>Painel Admin</h1>
+                <p>Renan & Karol — acompanhe tudo em tempo real</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-mensagens">0</div>
+                    <div class="stat-label">Mensagens</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-perguntas">0</div>
+                    <div class="stat-label">Perguntas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-compras">0</div>
+                    <div class="stat-label">Compras</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-total">R$ 0</div>
+                    <div class="stat-label">Arrecadado</div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('tab-mensagens')">💌 Mensagens</button>
+                <button class="tab" onclick="showTab('tab-perguntas')">❓ Perguntas</button>
+                <button class="tab" onclick="showTab('tab-compras')">💰 Compras</button>
+            </div>
+
+            <div class="section-content active" id="tab-mensagens">
+                <div id="lista-mensagens"><div class="vazio">Carregando mensagens...</div></div>
+            </div>
+            <div class="section-content" id="tab-perguntas">
+                <div id="lista-perguntas"><div class="vazio">Carregando perguntas...</div></div>
+            </div>
+            <div class="section-content" id="tab-compras">
+                <div id="lista-compras"><div class="vazio">Carregando compras...</div></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+// ===== SENHA DO ADMIN =====
+// Você pode mudar essa senha para qualquer uma
+const SENHA_ADMIN = 'renankarol2026';
+
+function fazerLogin() {
+    const senha = document.getElementById('senha-input').value;
+    if (senha === SENHA_ADMIN) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        localStorage.setItem('admin_logado', 'true');
+        carregarDados();
+    } else {
+        document.getElementById('login-erro').style.display = 'block';
+    }
+}
+
+function sair() {
+    localStorage.removeItem('admin_logado');
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+}
+
+// Verifica se já está logado
+if (localStorage.getItem('admin_logado') === 'true') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    carregarDados();
+}
+
+function showTab(tabId) {
+    document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    const btn = Array.from(document.querySelectorAll('.tab')).find(t => t.getAttribute('onclick').includes(tabId));
+    if (btn) btn.classList.add('active');
+}
+
+function carregarDados() {
+    // Verifica se Firebase está carregado
+    if (typeof db === 'undefined') {
+        setTimeout(carregarDados, 500);
+        return;
+    }
+
+    // Estatísticas
+    obterEstatisticas(function(stats) {
+        document.getElementById('stat-mensagens').textContent = stats.mensagens;
+        document.getElementById('stat-perguntas').textContent = stats.perguntas;
+        document.getElementById('stat-compras').textContent = stats.compras;
+        document.getElementById('stat-total').textContent = 'R$ ' + stats.totalArrecadado.toLocaleString('pt-BR');
+    });
+
+    // Mensagens em tempo real
+    listarMensagens(function(mensagens) {
+        const container = document.getElementById('lista-mensagens');
+        if (mensagens.length === 0) { container.innerHTML = '<div class="vazio">Nenhuma mensagem ainda.</div>'; return; }
+        container.innerHTML = mensagens.map(function(m) {
+            return '<div class="item-card">' +
+                '<button class="btn-excluir" onclick="excluirMsg(\''+m.id+'\')">Excluir</button>' +
+                '<div class="nome">'+escapeHtml(m.nome)+(m.anonimo ? '<span class="badge badge-anonimo">Anônimo</span>' : '')+'</div>' +
+                '<div class="texto">'+escapeHtml(m.texto)+'</div>' +
+                '<div class="data">'+formatarData(m.data)+'</div>' +
+            '</div>';
+        }).join('');
+    });
+
+    // Perguntas em tempo real
+    listarPerguntas(function(perguntas) {
+        const container = document.getElementById('lista-perguntas');
+        if (perguntas.length === 0) { container.innerHTML = '<div class="vazio">Nenhuma pergunta ainda.</div>'; return; }
+        container.innerHTML = perguntas.map(function(p) {
+            return '<div class="item-card">' +
+                '<button class="btn-excluir" onclick="excluirPerg(\''+p.id+'\')">Excluir</button>' +
+                '<div class="nome">'+escapeHtml(p.nome)+(p.anonimo ? '<span class="badge badge-anonimo">Anônimo</span>' : '<span class="badge badge-nao-lido">Nova</span>')+'</div>' +
+                '<div class="texto">'+escapeHtml(p.pergunta)+'</div>' +
+                '<div class="data">'+formatarData(p.data)+'</div>' +
+            '</div>';
+        }).join('');
+    });
+
+    // Compras em tempo real
+    listarCompras(function(compras) {
+        const container = document.getElementById('lista-compras');
+        if (compras.length === 0) { container.innerHTML = '<div class="vazio">Nenhuma compra ainda.</div>'; return; }
+        container.innerHTML = compras.map(function(c) {
+            const itens = c.itens ? c.itens.map(function(i) { return i.title || i.name; }).join(', ') : '-';
+            const statusClass = c.status === 'aprovado' ? 'status-aprovado' : 'status-pendente';
+            return '<div class="item-card compra-item">' +
+                '<button class="btn-excluir" onclick="excluirComp(\''+c.id+'\')">Excluir</button>' +
+                '<div class="compra-total">R$ '+(c.total || 0).toLocaleString('pt-BR')+' <span class="compra-status '+statusClass+'">'+(c.status || 'pendente')+'</span></div>' +
+                '<div class="texto" style="margin-top:6px;"><strong>Itens:</strong> '+escapeHtml(itens)+'</div>' +
+                '<div class="data">'+formatarData(c.data)+'</div>' +
+            '</div>';
+        }).join('');
+    });
+}
+
+function excluirMsg(id) {
+    if (!confirm('Tem certeza que deseja excluir esta mensagem?')) return;
+    excluirMensagem(id).then(function() {
+        showToast('Mensagem excluída!');
+    });
+}
+
+function excluirPerg(id) {
+    if (!confirm('Tem certeza que deseja excluir esta pergunta?')) return;
+    excluirPergunta(id).then(function() {
+        showToast('Pergunta excluída!');
+    });
+}
+
+function excluirComp(id) {
+    if (!confirm('Tem certeza que deseja excluir esta compra?')) return;
+    excluirCompra(id).then(function() {
+        showToast('Compra excluída!');
+    });
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatarData(dataStr) {
+    if (!dataStr) return '';
+    const d = new Date(dataStr);
+    return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+}
+
+function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--marsala-escuro);color:#fff;padding:12px 24px;border-radius:30px;font-size:0.8rem;z-index:500;white-space:nowrap;';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.5s'; }, 2000);
+    setTimeout(function() { document.body.removeChild(toast); }, 2500);
+}
+</script>
+</body>
+</html>
