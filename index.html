@@ -325,8 +325,8 @@
         .instagram-link:hover { color: var(--dourado); }
         .instagram-link .icon { font-size: 1rem; }
 
-        /* ===== BOTÃO SPOTIFY ===== */
-        .spotify-btn { position: fixed; bottom: 20px; left: 20px; z-index: 100; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #1DB954, #1ed760); color: #fff; border: none; box-shadow: 0 4px 16px rgba(29,185,84,0.35); cursor: pointer; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; }
+        /* ===== PLAYER SPOTIFY ===== */
+        .spotify-btn { border-radius: 50%; color: #fff; border: none; cursor: pointer; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
         .spotify-btn:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(29,185,84,0.45); }
 
         /* ===== TOAST ===== */
@@ -580,7 +580,7 @@
                     <span class="highlight">&#128161; Qualquer coisa</span> que precisar nos avise que ajudaremos vocês.
                 </p>
                 <div style="margin-top: 16px;">
-                    <a href="https://wa.me/559193615650?text=Oi! Preciso+de+informações+sobre+hospedagem+e+transporte+para+o+casamento.+Vou+vir+de+[CIDADE]." target="_blank" class="btn-gold" style="font-size: 0.7rem; padding: 12px 28px;">&#128172; Saiba mais pelo WhatsApp</a>
+                    <a href="https://wa.me/5591993615650?text=Oi! Preciso+de+informações+sobre+hospedagem+e+transporte+para+o+casamento.+Vou+vir+de+[CIDADE]." target="_blank" class="btn-gold" style="font-size: 0.7rem; padding: 12px 28px;">&#128172; Saiba mais pelo WhatsApp</a>
                 </div>
             </div>
             <div style="text-align: center; margin-top: 28px;">
@@ -764,16 +764,20 @@
             
             <div class="pix-btns">
                 <button class="pix-copy" onclick="copyChavePix()">&#128203; Copiar Chave PIX</button>
-                <a href="https://wa.me/559193615650?text=Oi! Fiz um PIX para vocês! 💕" target="_blank" class="pix-whatsapp">&#128172; Avisar pelos WhatsApp</a>
+                <a href="https://wa.me/5591993615650?text=Oi! Fiz um PIX para vocês! 💕" target="_blank" class="pix-whatsapp">&#128172; Avisar pelos WhatsApp</a>
                 <button class="pix-fechar" onclick="closePixModal()">Fechar</button>
             </div>
         </div>
     </div>
 
-    <!-- ===== BOTÃO SPOTIFY ===== -->
-    <a href="https://open.spotify.com/track/0tgVpDi06FyKpA1zm0rEO5" target="_blank" class="spotify-btn" title="Ouvir Perfect - Ed Sheeran no Spotify">
+    <!-- ===== PLAYER SPOTIFY ===== -->
+    <div id="spotify-player" style="position:fixed;bottom:20px;left:20px;z-index:100;width:300px;max-width:calc(100vw - 40px);border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:none;">
+        <iframe style="border-radius:12px;" src="https://open.spotify.com/embed/track/0tgVpDi06FyKpA1zm0rEO5?utm_source=generator&theme=0" width="100%" height="80" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        <button onclick="closeSpotify()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;line-height:22px;text-align:center;">&#10005;</button>
+    </div>
+    <button id="spotify-launch" onclick="openSpotify()" class="spotify-btn" title="Ouvir Perfect - Ed Sheeran no Spotify" style="position:fixed;bottom:20px;left:20px;z-index:100;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg, #1DB954, #1ed760);color:#fff;border:none;box-shadow:0 4px 16px rgba(29,185,84,0.35);cursor:pointer;font-size:1.4rem;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all 0.3s ease;">
         &#9835;
-    </a>
+    </button>
 
     <!-- ===== LIGHTBOX COM FRASE ===== -->
     <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
@@ -800,6 +804,16 @@
     <div class="toast" id="toast"></div>
 
     <script>
+    // ===== PLAYER SPOTIFY =====
+    function openSpotify() {
+        document.getElementById('spotify-player').style.display = 'block';
+        document.getElementById('spotify-launch').style.display = 'none';
+    }
+    function closeSpotify() {
+        document.getElementById('spotify-player').style.display = 'none';
+        document.getElementById('spotify-launch').style.display = 'flex';
+    }
+
     // ===== POP-UP BOAS-VINDAS =====
     (function() {
         // Verifica se o usuário optou por não mostrar novamente
@@ -968,7 +982,7 @@
     
     function gerarPayloadPIX(valor) {
         // Dados do PIX
-        const chavePix = '+559193615650'; // telefone com +
+        const chavePix = '+5591993615650'; // telefone com +
         const nome = 'Renan de Oliveira';
         const cidade = 'PACAJA';
         const txId = 'CASAMENTO' + Date.now().toString().slice(-6);
@@ -1072,7 +1086,16 @@
         
         if (!comparecera) { showToast('Por favor, selecione se vai comparecer.'); return; }
         
-        // Salva no localStorage
+        // Salva no Firebase
+        if (typeof salvarPresencaFirebase === 'function') {
+            salvarPresencaFirebase(nome, whatsapp, comparecera, acompanhantes, mensagem).then(function() {
+                console.log('Presenca salva no Firebase!');
+            }).catch(function(err) {
+                console.error('Erro Firebase presenca:', err);
+            });
+        }
+        
+        // Salva local tambem (offline fallback)
         saveData(STORAGE_KEYS.presencas, {
             nome: nome,
             whatsapp: whatsapp,
@@ -1092,7 +1115,7 @@
                     ${mensagem ? `<div class="mensagem-convidado"><strong>Sua mensagem:</strong> "${mensagem.replace(/</g,'&lt;').replace(/>/g,'&gt;')}"</div>` : ''}
                     <div class="confirmar-botoes">
                         <a href="lista_presentes.html" class="btn-resultado btn-resultado-presentes">&#127873; Ver Lista de Presentes</a>
-                        <a href="https://wa.me/559193615650?text=${encodeURIComponent('Oi! Sou ' + nome + ' e acabei de confirmar minha presença no casamento! ' + (acompanhantes > 0 ? 'Levando ' + acompanhantes + ' acompanhante(s). ' : '') + 'Nos vemos dia 05/07! 💕')}" target="_blank" class="btn-resultado btn-resultado-whatsapp">&#128172; Enviar mensagem aos noivos</a>
+                        <a href="https://wa.me/5591993615650?text=${encodeURIComponent('Oi! Sou ' + nome + ' e acabei de confirmar minha presença no casamento! ' + (acompanhantes > 0 ? 'Levando ' + acompanhantes + ' acompanhante(s). ' : '') + 'Nos vemos dia 05/07! 💕')}" target="_blank" class="btn-resultado btn-resultado-whatsapp">&#128172; Enviar mensagem aos noivos</a>
                         <button type="button" onclick="resetarFormulario()" class="btn-resultado btn-resultado-voltar">&#8592; Voltar ao formulário</button>
                     </div>
                 </div>`;
@@ -1103,7 +1126,7 @@
                     <h3>Sentiremos sua falta, ${nome}!</h3>
                     <p>Mas entendemos perfeitamente, vida é assim.<br>Obrigado por nos avisar com carinho. Você está em nossas orações e faz parte da nossa história sempre.</p>
                     <div class="confirmar-botoes">
-                        <a href="https://wa.me/559193615650?text=${encodeURIComponent('Oi! Sou ' + nome + '. Infelizmente não poderei ir ao casamento, mas queria deixar uma mensagem de carinho para vocês! 💕')}" target="_blank" class="btn-resultado btn-resultado-whatsapp">&#128172; Enviar uma mensagem de carinho</a>
+                        <a href="https://wa.me/5591993615650?text=${encodeURIComponent('Oi! Sou ' + nome + '. Infelizmente não poderei ir ao casamento, mas queria deixar uma mensagem de carinho para vocês! 💕')}" target="_blank" class="btn-resultado btn-resultado-whatsapp">&#128172; Enviar uma mensagem de carinho</a>
                         <a href="lista_presentes.html" class="btn-resultado btn-resultado-presentes">&#127873; Mesmo assim, quero ver os presentes</a>
                         <button type="button" onclick="resetarFormulario()" class="btn-resultado btn-resultado-voltar">&#8592; Voltar ao formulário</button>
                     </div>
@@ -1125,7 +1148,7 @@
         window.location.reload();
     }
     function sendWhatsAppNoivos() {
-        window.open('https://wa.me/559193615650', '_blank');
+        window.open('https://wa.me/5591993615650', '_blank');
     }
 
     // Toggle nome field visibility when anonymous is checked
@@ -1213,6 +1236,47 @@
         toggleNomeField('msg-nome', false);
         showToast('Mensagem enviada com carinho!');
     }
+
+    // ===== CARREGAR MURAL DO FIREBASE =====
+    function carregarMuralDoFirebase() {
+        // Aguarda o Firebase estar pronto
+        if (typeof listarMensagens !== 'function') {
+            console.log('Firebase não pronto, tentando em 1s...');
+            setTimeout(carregarMuralDoFirebase, 1000);
+            return;
+        }
+        
+        listarMensagens(function(mensagens) {
+            if (!mensagens || mensagens.length === 0) return;
+            
+            const carousel = document.getElementById('mural-carousel');
+            // Limpa mensagens de exemplo se houver mensagens reais
+            if (mensagens.length > 0) {
+                carousel.innerHTML = '';
+            }
+            
+            mensagens.forEach(function(msg) {
+                const card = document.createElement('div');
+                card.className = 'msg-card';
+                let autor = '';
+                if (msg.nome && msg.nome !== 'Anônimo' && msg.nome !== 'Sem nome') {
+                    autor = '<em style="font-size:0.65rem;color:var(--dourado);display:block;margin-top:6px;">- ' + msg.nome.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</em>';
+                } else if (msg.anonimo || msg.nome === 'Anônimo') {
+                    autor = '<em style="font-size:0.65rem;color:var(--dourado);display:block;margin-top:6px;">- Anônimo</em>';
+                }
+                card.innerHTML = '<div class="quote">❝</div><p>' + (msg.texto || msg.mensagem || '').replace(/</g, '&lt;').replace(/>/g, '&gt;') + autor + '</p>';
+                carousel.appendChild(card);
+            });
+            
+            console.log('Mural carregado com ' + mensagens.length + ' mensagens do Firebase');
+        });
+    }
+    
+    // Carrega mural ao iniciar a página
+    document.addEventListener('DOMContentLoaded', function() {
+        // Pequeno delay para garantir que firebase-config.js foi carregado
+        setTimeout(carregarMuralDoFirebase, 1500);
+    });
 
     // ===== TOAST =====
     function showToast(msg) {

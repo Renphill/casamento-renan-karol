@@ -59,6 +59,8 @@
         .badge-nao-lido { background: var(--marsala); color: #fff; }
         .btn-excluir { position: absolute; top: 12px; right: 12px; background: #dc3545; color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 0.6rem; cursor: pointer; }
         .btn-excluir:hover { background: #c82333; }
+        .btn-pagar { position: absolute; top: 12px; right: 70px; background: #28a745; color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 0.6rem; cursor: pointer; }
+        .btn-pagar:hover { background: #218838; }
 
         .vazio { text-align: center; padding: 60px 20px; color: var(--texto-claro); font-style: italic; }
 
@@ -114,10 +116,34 @@
                     <div class="stat-label">Arrecadado</div>
                 </div>
             </div>
+            <!-- ESTATISTICAS DE PRESENCA -->
+            <div class="stats-grid" style="margin-top:12px;">
+                <div class="stat-card" style="border-left:4px solid #28a745;">
+                    <div class="stat-number" id="stat-vao" style="color:#28a745;">0</div>
+                    <div class="stat-label">Vao Comparecer</div>
+                    <div style="font-size:0.65rem;color:#8B7B7B;margin-top:4px;" id="stat-pessoas-vao">0 pessoas</div>
+                </div>
+                <div class="stat-card" style="border-left:4px solid #dc3545;">
+                    <div class="stat-number" id="stat-nao-vao" style="color:#dc3545;">0</div>
+                    <div class="stat-label">Nao Podem Ir</div>
+                    <div style="font-size:0.65rem;color:#8B7B7B;margin-top:4px;" id="stat-pessoas-nao">0 pessoas</div>
+                </div>
+                <div class="stat-card" style="border-left:4px solid var(--dourado);">
+                    <div class="stat-number" id="stat-total-pessoas">0</div>
+                    <div class="stat-label">Total Confirmados</div>
+                    <div style="font-size:0.65rem;color:#8B7B7B;margin-top:4px;">pessoas que irao</div>
+                </div>
+                <div class="stat-card" style="border-left:4px solid #6c757d;">
+                    <div class="stat-number" id="stat-respostas">0</div>
+                    <div class="stat-label">Total Respostas</div>
+                    <div style="font-size:0.65rem;color:#8B7B7B;margin-top:4px;">confirmacoes recebidas</div>
+                </div>
+            </div>
 
             <div class="tabs">
                 <button class="tab active" onclick="showTab('tab-mensagens')">💌 Mensagens</button>
                 <button class="tab" onclick="showTab('tab-perguntas')">❓ Perguntas</button>
+                <button class="tab" onclick="showTab('tab-presencas')">✅ Presencas</button>
                 <button class="tab" onclick="showTab('tab-compras')">💰 Compras</button>
             </div>
 
@@ -126,6 +152,9 @@
             </div>
             <div class="section-content" id="tab-perguntas">
                 <div id="lista-perguntas"><div class="vazio">Carregando perguntas...</div></div>
+            </div>
+            <div class="section-content" id="tab-presencas">
+                <div id="lista-presencas"><div class="vazio">Carregando confirmacoes...</div></div>
             </div>
             <div class="section-content" id="tab-compras">
                 <div id="lista-compras"><div class="vazio">Carregando compras...</div></div>
@@ -214,15 +243,64 @@ function carregarDados() {
         }).join('');
     });
 
+    // Presencas em tempo real
+    if (typeof listarPresencas === 'function') {
+        listarPresencas(function(presencas) {
+            // Estatisticas de presenca
+            let vao = 0, naoVao = 0, totalPessoas = 0, totalRespostas = presencas.length;
+            presencas.forEach(function(p) {
+                if (p.comparecera === 'sim') {
+                    vao++;
+                    totalPessoas += 1 + (p.acompanhantes || 0);
+                } else {
+                    naoVao++;
+                }
+            });
+            document.getElementById('stat-vao').textContent = vao;
+            document.getElementById('stat-nao-vao').textContent = naoVao;
+            document.getElementById('stat-total-pessoas').textContent = totalPessoas;
+            document.getElementById('stat-respostas').textContent = totalRespostas;
+            document.getElementById('stat-pessoas-vao').textContent = totalPessoas + ' pessoa' + (totalPessoas !== 1 ? 's' : '');
+            document.getElementById('stat-pessoas-nao').textContent = naoVao + ' resposta' + (naoVao !== 1 ? 's' : '');
+
+            // Lista de presencas
+            const container = document.getElementById('lista-presencas');
+            if (presencas.length === 0) { container.innerHTML = '<div class="vazio">Nenhuma confirmacao ainda.</div>'; return; }
+            container.innerHTML = presencas.map(function(p) {
+                const statusBadge = p.comparecera === 'sim' 
+                    ? '<span class="compra-status status-aprovado">VAI</span>' 
+                    : '<span class="compra-status status-pendente">NAO VAI</span>';
+                const acomp = p.acompanhantes ? ' +' + p.acompanhantes + ' acomp.' : '';
+                return '<div class="item-card" style="border-left:4px solid ' + (p.comparecera === 'sim' ? '#28a745' : '#dc3545') + ';">' +
+                    '<button class="btn-excluir" onclick="excluirPresencaId(\''+p.id+'\')">Excluir</button>' +
+                    '<div class="nome">' + escapeHtml(p.nome) + ' ' + statusBadge + '</div>' +
+                    '<div class="texto"><strong>WhatsApp:</strong> ' + escapeHtml(p.whatsapp) + acomp + '</div>' +
+                    (p.mensagem ? '<div class="texto" style="font-style:italic;">"' + escapeHtml(p.mensagem) + '"</div>' : '') +
+                    '<div class="data">' + formatarData(p.data) + '</div>' +
+                '</div>';
+            }).join('');
+        });
+    }
+
     // Compras em tempo real
     listarCompras(function(compras) {
         const container = document.getElementById('lista-compras');
         if (compras.length === 0) { container.innerHTML = '<div class="vazio">Nenhuma compra ainda.</div>'; return; }
+        
+        // Calcula total arrecadado (só compras aprovadas)
+        let totalAprovado = 0;
+        compras.forEach(function(c) {
+            if (c.status === 'aprovado') totalAprovado += (c.total || 0);
+        });
+        document.getElementById('stat-total').textContent = 'R$ ' + totalAprovado.toLocaleString('pt-BR');
+        
         container.innerHTML = compras.map(function(c) {
-            const itens = c.itens ? c.itens.map(function(i) { return i.title || i.name; }).join(', ') : '-';
+            const itens = c.itens ? c.itens.map(function(i) { return i.title || i.name; }).join(', ') : (c.itens || '-');
             const statusClass = c.status === 'aprovado' ? 'status-aprovado' : 'status-pendente';
+            const btnPagar = c.status !== 'aprovado' ? '<button class="btn-pagar" onclick="marcarPago(\''+c.id+'\')">Marcar como Pago</button>' : '';
             return '<div class="item-card compra-item">' +
                 '<button class="btn-excluir" onclick="excluirComp(\''+c.id+'\')">Excluir</button>' +
+                btnPagar +
                 '<div class="compra-total">R$ '+(c.total || 0).toLocaleString('pt-BR')+' <span class="compra-status '+statusClass+'">'+(c.status || 'pendente')+'</span></div>' +
                 '<div class="texto" style="margin-top:6px;"><strong>Itens:</strong> '+escapeHtml(itens)+'</div>' +
                 '<div class="data">'+formatarData(c.data)+'</div>' +
@@ -249,6 +327,22 @@ function excluirComp(id) {
     if (!confirm('Tem certeza que deseja excluir esta compra?')) return;
     excluirCompra(id).then(function() {
         showToast('Compra excluída!');
+    });
+}
+
+function excluirPresencaId(id) {
+    if (!confirm('Tem certeza que deseja excluir esta confirmacao?')) return;
+    excluirPresenca(id).then(function() {
+        showToast('Confirmacao excluida!');
+    });
+}
+
+function marcarPago(id) {
+    if (!confirm('Marcar esta compra como PAGA? O valor será adicionado ao total arrecadado.')) return;
+    marcarComoPago(id).then(function() {
+        showToast('Compra marcada como paga!');
+    }).catch(function(err) {
+        showToast('Erro: ' + err.message);
     });
 }
 
