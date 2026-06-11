@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Renan & Karol | Casamento — 05 de Julho de 2026</title>
     <meta name="description" content="Renan & Karol — 05 de Julho de 2026, Pacajá-PA. Um casamento ao pôr do sol, em campo aberto, sob a luz do luar.">
+    <!-- Open Graph / WhatsApp / Facebook -->
+    <meta property="og:title" content="Renan & Karol | Casamento — 05 de Julho de 2026">
+    <meta property="og:description" content="Você é nosso convidado especial! Um casamento ao pôr do sol, em campo aberto, sob a luz do luar. Pacajá-PA.">
+    <meta property="og:image" content="https://renphill.github.io/casamento-renan-karol/share-casamento.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://renphill.github.io/casamento-renan-karol/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Renan & Karol | Casamento — 05 de Julho de 2026">
+    <meta name="twitter:description" content="Você é nosso convidado especial! Um casamento ao pôr do sol, em campo aberto, sob a luz do luar.">
+    <meta name="twitter:image" content="https://renphill.github.io/casamento-renan-karol/share-casamento.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -326,7 +340,6 @@
         .instagram-link .icon { font-size: 1rem; }
 
         /* ===== PLAYER SPOTIFY ===== */
-        .spotify-btn { border-radius: 50%; color: #fff; border: none; cursor: pointer; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
         .spotify-btn:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(29,185,84,0.45); }
 
         /* ===== TOAST ===== */
@@ -770,14 +783,10 @@
         </div>
     </div>
 
-    <!-- ===== PLAYER SPOTIFY ===== -->
-    <div id="spotify-player" style="position:fixed;bottom:20px;left:20px;z-index:100;width:300px;max-width:calc(100vw - 40px);border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:none;">
-        <iframe style="border-radius:12px;" src="https://open.spotify.com/embed/track/0tgVpDi06FyKpA1zm0rEO5?utm_source=generator&theme=0" width="100%" height="80" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-        <button onclick="closeSpotify()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;line-height:22px;text-align:center;">&#10005;</button>
-    </div>
-    <button id="spotify-launch" onclick="openSpotify()" class="spotify-btn" title="Ouvir Perfect - Ed Sheeran no Spotify" style="position:fixed;bottom:20px;left:20px;z-index:100;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg, #1DB954, #1ed760);color:#fff;border:none;box-shadow:0 4px 16px rgba(29,185,84,0.35);cursor:pointer;font-size:1.4rem;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all 0.3s ease;">
+    <!-- ===== BOTAO SPOTIFY ===== -->
+    <a href="https://open.spotify.com/track/0tgVpDi06FyKpA1zm0rEO5?si" target="_blank" rel="noopener" class="spotify-btn" title="Ouvir Perfect - Ed Sheeran no Spotify" style="position:fixed;bottom:20px;left:20px;z-index:100;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg, #1DB954, #1ed760);color:#fff;border:none;box-shadow:0 4px 16px rgba(29,185,84,0.35);cursor:pointer;font-size:1.4rem;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all 0.3s ease;">
         &#9835;
-    </button>
+    </a>
 
     <!-- ===== LIGHTBOX COM FRASE ===== -->
     <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
@@ -804,16 +813,6 @@
     <div class="toast" id="toast"></div>
 
     <script>
-    // ===== PLAYER SPOTIFY =====
-    function openSpotify() {
-        document.getElementById('spotify-player').style.display = 'block';
-        document.getElementById('spotify-launch').style.display = 'none';
-    }
-    function closeSpotify() {
-        document.getElementById('spotify-player').style.display = 'none';
-        document.getElementById('spotify-launch').style.display = 'flex';
-    }
-
     // ===== POP-UP BOAS-VINDAS =====
     (function() {
         // Verifica se o usuário optou por não mostrar novamente
@@ -883,6 +882,8 @@
         { src: 'casal-22.jpg', frase: 'Cada encontro é uma nova razão para sorrir.' },
         { src: 'casal-24.jpg', frase: 'O pedido mais lindo, feito com flores e muito amor.' },
         { src: 'casal-25.jpg', frase: 'A união que Deus abençoou.' },
+        { src: 'casal-26.jpg', frase: 'Momentos de paz e amor na natureza.' },
+        { src: 'casal-27.jpg', frase: 'Pôr do sol que pinta nosso amor de laranja.' },
         { src: 'noivo.jpg', frase: 'Força, amor e lealdade em um só homem.' },
         { src: 'noiva.jpg', frase: 'Beleza que vem de dentro e ilumina tudo.' }
     ];

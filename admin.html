@@ -338,9 +338,32 @@ function excluirPresencaId(id) {
 }
 
 function marcarPago(id) {
-    if (!confirm('Marcar esta compra como PAGA? O valor será adicionado ao total arrecadado.')) return;
+    if (!confirm('Marcar esta compra como PAGA? O valor sera adicionado ao total arrecadado.')) return;
+    
+    // Busca os itens da compra para registrar cotas
+    if (typeof refs !== 'undefined') {
+        refs.compras.child(id).once('value', function(snapshot) {
+            const compra = snapshot.val();
+            if (compra && compra.itens) {
+                // Registra cotas para cada item simbolico
+                compra.itens.forEach(function(item) {
+                    const itemId = item.id;
+                    // Verifica se eh uma cota simbolica
+                    const cotaIds = ['lua1','lua2','lua3','lua4','lua5','lua6','d1','d2','d3','d4','d5','d6','d7','d8','d9'];
+                    if (itemId && cotaIds.includes(itemId)) {
+                        const qty = item.qty || 1;
+                        if (typeof registrarCotaFirebase === 'function') {
+                            registrarCotaFirebase(itemId, qty);
+                            console.log('Cota ' + itemId + ' registrada: +' + qty);
+                        }
+                    }
+                });
+            }
+        });
+    }
+    
     marcarComoPago(id).then(function() {
-        showToast('Compra marcada como paga!');
+        showToast('Compra marcada como paga! Cotas atualizadas.');
     }).catch(function(err) {
         showToast('Erro: ' + err.message);
     });
