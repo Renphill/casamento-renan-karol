@@ -340,7 +340,7 @@
         .instagram-link .icon { font-size: 1rem; }
 
         /* ===== PLAYER SPOTIFY ===== */
-        .spotify-btn:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(29,185,84,0.45); }
+        /* removido */
 
         /* ===== TOAST ===== */
         .toast { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--marsala-escuro); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 0.8rem; z-index: 300; opacity: 0; transition: all 0.3s ease; white-space: nowrap; }
@@ -518,7 +518,7 @@
                 <div class="info-card-icon">&#128205;</div>
                 <h3>Localização</h3>
                 <p>
-                    <span class="highlight">Saída Vecinal Tozeti km 3 da Faixa</span><br>
+                    <span class="highlight">Entrada da Vicinal Tozeti Km 3 da Faixa</span><br>
                     (Chácara Paraíso) - Pacajá, PA
                 </p>
                 <div style="margin-top: 12px; border-radius: 12px; overflow: hidden;">
@@ -558,7 +558,7 @@
                 <div class="info-card-icon">&#128197;</div>
                 <h3>Confirme sua Presença</h3>
                 <p style="margin-bottom: 12px;">
-                    <span class="highlight">Prazo:</span> Até <strong>28 de Junho</strong> de 2026.
+                    <span class="highlight">Prazo:</span> Até <strong>25 de junho</strong> de 2026.
                 </p>
                 <p>
                     Sua confirmação é <strong>muito importante</strong> para nosso planejamento! Nos ajude a organizar tudo com carinho.
@@ -606,7 +606,7 @@
             <p class="section-label">Confirmar Presença</p>
             <h2 class="section-title">Contamos com Você</h2>
             <div class="gold-line"></div>
-            <p class="section-subtitle">Sua presença é o nosso maior presente.<br>Por favor, confirme até 28 de Junho.</p>
+            <p class="section-subtitle">Sua presença é o nosso maior presente.<br>Por favor, confirme até 25 de junho.</p>
             <form class="confirmar-form" onsubmit="handleConfirmar(event)">
                 <label>Nome Completo *</label>
                 <input type="text" name="nome" placeholder="Seu nome completo" required>
@@ -642,7 +642,7 @@
                 <button type="submit">Confirmar Presença</button>
             </form>
             <p class="confidencial-msg">&#128150; Sua resposta será confidencial. Agradecemos de coração!</p>
-            <p style="font-size: 0.7rem; color: rgba(255,255,255,0.6); margin-top: 8px;">Prazo para confirmar presença: <strong style="color: var(--dourado);">até 28 de Junho</strong></p>
+            <p style="font-size: 0.7rem; color: rgba(255,255,255,0.6); margin-top: 8px;">Prazo para confirmar presença: <strong style="color: var(--dourado);">até 25 de junho</strong></p>
         </section>
 
         <!-- ===== ENQUETE DIVERTIDA ===== -->
@@ -782,11 +782,6 @@
             </div>
         </div>
     </div>
-
-    <!-- ===== BOTAO SPOTIFY ===== -->
-    <a href="https://open.spotify.com/track/0tgVpDi06FyKpA1zm0rEO5?si" target="_blank" rel="noopener" class="spotify-btn" title="Ouvir Perfect - Ed Sheeran no Spotify" style="position:fixed;bottom:20px;left:20px;z-index:100;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg, #1DB954, #1ed760);color:#fff;border:none;box-shadow:0 4px 16px rgba(29,185,84,0.35);cursor:pointer;font-size:1.4rem;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all 0.3s ease;">
-        &#9835;
-    </a>
 
     <!-- ===== LIGHTBOX COM FRASE ===== -->
     <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
@@ -1279,4 +1274,17 @@
     
     // Carrega mural ao iniciar a página
     document.addEventListener('DOMContentLoaded', function() {
-        // Pequeno delay 
+        // Pequeno delay para garantir que firebase-config.js foi carregado
+        setTimeout(carregarMuralDoFirebase, 1500);
+    });
+
+    // ===== TOAST =====
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+    </script>
+</body>
+</html>

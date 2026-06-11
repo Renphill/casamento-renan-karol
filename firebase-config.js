@@ -92,12 +92,12 @@ function registrarCotaFirebase(cotaId, quantidade) {
         const val = current || { compradas: 0, total: 10 };
         if (typeof val === 'number') {
             // Migra formato antigo (numero) para novo formato (objeto)
-            const compradas = val + quantity;
+            const compradas = val + quantidade;
             let total = 10;
             while (total <= compradas) total += 5;
             return { compradas: compradas, total: total };
         }
-        const compradas = (val.compradas || 0) + quantity;
+        const compradas = (val.compradas || 0) + quantidade;
         let total = val.total || 10;
         // Auto-expansao: quando compradas >= total, aumenta de 5 em 5
         while (total <= compradas) total += 5;
