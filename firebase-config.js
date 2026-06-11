@@ -77,13 +77,14 @@ function excluirPresenca(id) {
 }
 
 // Salvar compra no Firebase
-function salvarCompraFirebase(itens, total, status, mensagem, anonimo) {
+function salvarCompraFirebase(itens, total, status, nome, mensagem, anonimo) {
     const dados = {
         itens: itens,
         total: total,
         status: status || 'pendente',
         data: new Date().toISOString()
     };
+    if (nome) dados.nome = nome;
     if (mensagem) dados.mensagem = mensagem;
     if (anonimo) dados.anonimo = true;
     return refs.compras.push(dados);

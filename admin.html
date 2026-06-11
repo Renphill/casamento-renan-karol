@@ -299,12 +299,14 @@ function carregarDados() {
             const statusClass = c.status === 'aprovado' ? 'status-aprovado' : 'status-pendente';
             const btnPagar = c.status !== 'aprovado' ? '<button class="btn-pagar" onclick="marcarPago(\''+c.id+'\')">Marcar como Pago</button>' : '';
             const anonimoBadge = c.anonimo ? '<span style="background:#6c757d;color:#fff;font-size:0.55rem;padding:2px 6px;border-radius:4px;margin-left:4px;">ANÔNIMO</span>' : '';
-            const mensagemHtml = c.mensagem ? '<div class="texto" style="margin-top:6px;font-style:italic;color:var(--marsala);background:rgba(196,154,108,0.08);padding:8px;border-radius:8px;">&#128150; "'+escapeHtml(c.mensagem)+'"'+anonimoBadge+'</div>' : '';
+            const nomeDisplay = c.nome ? escapeHtml(c.nome) : (c.anonimo ? 'Anônimo' : 'Sem nome');
+            const mensagemHtml = c.mensagem ? '<div class="texto" style="margin-top:6px;font-style:italic;color:var(--marsala);background:rgba(196,154,108,0.08);padding:8px;border-radius:8px;">&#128150; "'+escapeHtml(c.mensagem)+'"</div>' : '';
             return '<div class="item-card compra-item">' +
                 '<button class="btn-excluir" onclick="excluirComp(\''+c.id+'\')">Excluir</button>' +
                 btnPagar +
                 '<div class="compra-total">R$ '+(c.total || 0).toLocaleString('pt-BR')+' <span class="compra-status '+statusClass+'">'+(c.status || 'pendente')+'</span></div>' +
-                '<div class="texto" style="margin-top:6px;"><strong>Itens:</strong> '+escapeHtml(itens)+'</div>' +
+                '<div class="texto" style="margin-top:6px;"><strong>De:</strong> '+nomeDisplay+anonimoBadge+'</div>' +
+                '<div class="texto" style="margin-top:4px;"><strong>Itens:</strong> '+escapeHtml(itens)+'</div>' +
                 mensagemHtml +
                 '<div class="data">'+formatarData(c.data)+'</div>' +
             '</div>';

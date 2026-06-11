@@ -166,9 +166,9 @@
         <div class="tab-content" id="quarto"><div class="products-grid" id="grid-quarto"></div></div>
         <div class="tab-content" id="lavanderia"><div class="products-grid" id="grid-lavanderia"></div></div>
         <div class="tab-content" id="simbolicos">
-            <div style="text-align:center;padding:20px 16px;background:linear-gradient(135deg,rgba(196,154,108,0.1) 0%,rgba(114,47,55,0.06) 100%);border-radius:12px;margin-bottom:16px;">
-                <p style="font-family:'Great Vibes',cursive;font-size:1.4rem;color:var(--marsala);margin-bottom:8px;">Gestos que se tornam Memórias</p>
-                <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.95rem;color:var(--texto-claro);line-height:1.6;">Nem todo presente precisa ter tamanho físico. Às vezes, o que mais toca o coração é um gesto simbólico — uma cota de amor que nos leva mais perto dos nossos sonhos. Cada contribuição aqui é um pedacinho da nossa história que vocês estão ajudando a construir. Com humildade e gratidão, agradecemos de coração.</p>
+            <div class="msg-simbolicos" style="text-align:center;padding:20px 16px;background:linear-gradient(135deg,rgba(196,154,108,0.1) 0%,rgba(114,47,55,0.06) 100%);border-radius:12px;margin-bottom:16px;">
+                <p style="font-family:'Great Vibes',cursive;font-size:1.4rem;color:var(--marsala);margin-bottom:8px;">Um Carinho a Mais</p>
+                <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.95rem;color:var(--texto-claro);line-height:1.6;">Além dos presentes, se quiser fazer parte da nossa história de um jeito especial, cada cota aqui é um gesto de amor que nos ajuda a construir momentos inesquecíveis. Não é obrigatório, é um convite do coração para quem deseja contribuir além do presente. Com toda a gratidão do mundo.</p>
                 <p style="font-family:'Cormorant Garamond',serif;font-size:0.85rem;color:var(--marsala);margin-top:10px;"><strong>Cada cota: R$ 50</strong> &mdash; Compre quantas quiser!</p>
             </div>
             <div class="products-grid" id="grid-simbolicos"></div>
@@ -194,10 +194,12 @@
         </div>
         <div class="cart-footer" id="cart-footer" style="display:none;">
             <div style="margin-bottom:16px;padding:12px;background:rgba(196,154,108,0.06);border-radius:12px;border:1px solid rgba(196,154,108,0.15);">
-                <label style="font-size:0.65rem;font-weight:600;color:var(--marsala);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">&#128150; Deixe uma mensagem de carinho</label>
-                <textarea id="cart-mensagem" placeholder="Escreva algo especial para Renan e Karol..." style="width:100%;padding:10px;border:1px solid rgba(196,154,108,0.2);border-radius:8px;font-family:'Cormorant Garamond',serif;font-size:0.85rem;color:var(--texto);resize:none;height:60px;outline:none;background:var(--branco);"></textarea>
+                <label style="font-size:0.65rem;font-weight:600;color:var(--marsala);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">&#128100; Seu nome</label>
+                <input type="text" id="cart-nome" placeholder="Como quer ser identificado(a)?" style="width:100%;padding:10px;border:1px solid rgba(196,154,108,0.2);border-radius:8px;font-family:'Cormorant Garamond',serif;font-size:0.85rem;color:var(--texto);outline:none;background:var(--branco);margin-bottom:10px;">
+                <label style="font-size:0.65rem;font-weight:600;color:var(--marsala);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">&#128150; Mensagem de carinho (opcional)</label>
+                <textarea id="cart-mensagem" placeholder="Escreva algo especial para Renan e Karol..." style="width:100%;padding:10px;border:1px solid rgba(196,154,108,0.2);border-radius:8px;font-family:'Cormorant Garamond',serif;font-size:0.85rem;color:var(--texto);resize:none;height:50px;outline:none;background:var(--branco);"></textarea>
                 <label style="display:flex;align-items:center;gap:6px;margin-top:8px;cursor:pointer;font-size:0.7rem;color:var(--texto-claro);">
-                    <input type="checkbox" id="cart-anonimo" style="accent-color:var(--marsala);width:14px;height:14px;">
+                    <input type="checkbox" id="cart-anonimo" style="accent-color:var(--marsala);width:14px;height:14px;" onchange="document.getElementById('cart-nome').disabled=this.checked;if(this.checked)document.getElementById('cart-nome').value='';">
                     Enviar como anônimo
                 </label>
             </div>
@@ -224,6 +226,15 @@
     <div class="toast" id="toast"></div>
 
 <script>
+// Format price with ,90 in smaller font for prices ending in 9
+function formatPrice(price) {
+    const val = Math.round(price);
+    const str = val.toLocaleString('pt-BR');
+    if (val % 10 === 9) {
+        return 'R$ ' + str + '<span style="font-size:0.65rem;opacity:0.7;">,90</span>';
+    }
+    return 'R$ ' + str;
+}
 const MP_ACCESS_TOKEN = 'APP_USR-7516116368254371-060822-7998de88124e7f0f1d28894a8043e4ce-289404449';
 const MP_API_URL = 'https://api.mercadopago.com/checkout/preferences';
 
@@ -254,10 +265,10 @@ function renderCartDrawer() {
     cart.forEach((item, idx) => {
         const subtotal = item.price * item.qty; total += subtotal;
         const isFisico = !item.simbolico;
-        html += '<div class="cart-item"><img src="'+item.img+'" alt="'+item.name+'" class="cart-item-img" onerror="this.style.display=\'none\'"><div class="cart-item-info"><div class="cart-item-name">'+item.name+'</div><div class="cart-item-price">R$ '+item.price.toLocaleString('pt-BR')+(item.qty>1?' x '+item.qty:'')+'</div><div class="cart-item-qty"><button onclick="updateCartQty('+idx+',-1)">-</button><span>'+item.qty+'</span><button onclick="updateCartQty('+idx+',1)" '+(isFisico?'disabled':'')+'>+</button></div></div><button class="cart-item-remove" onclick="removeCartItem('+idx+')">&#128465;</button></div>';
+        html += '<div class="cart-item"><img src="'+item.img+'" alt="'+item.name+'" class="cart-item-img" onerror="this.style.display=\'none\'"><div class="cart-item-info"><div class="cart-item-name">'+item.name+'</div><div class="cart-item-price">'+formatPrice(item.price)+(item.qty>1?' x '+item.qty:'')+'</div><div class="cart-item-qty"><button onclick="updateCartQty('+idx+',-1)">-</button><span>'+item.qty+'</span><button onclick="updateCartQty('+idx+',1)" '+(isFisico?'disabled':'')+'>+</button></div></div><button class="cart-item-remove" onclick="removeCartItem('+idx+')">&#128465;</button></div>';
     });
     itemsContainer.innerHTML = html;
-    document.getElementById('cart-total').textContent = 'R$ ' + total.toLocaleString('pt-BR');
+    document.getElementById('cart-total').innerHTML = formatPrice(total);
     footer.style.display = 'block';
 }
 
@@ -356,12 +367,13 @@ async function checkoutCart() {
         const data = await response.json();
         if (data.init_point) {
             // Salva a compra no Firebase antes de redirecionar
+            const nomeConvidado = document.getElementById('cart-nome') && !document.getElementById('cart-anonimo').checked ? document.getElementById('cart-nome').value : '';
             const mensagemConvidado = document.getElementById('cart-mensagem') ? document.getElementById('cart-mensagem').value : '';
             const anonimoConvidado = document.getElementById('cart-anonimo') ? document.getElementById('cart-anonimo').checked : false;
             const itensCompra = cart.map(function(item) { return { name: item.name, price: item.price, qty: item.qty, id: item.id, simbolico: item.simbolico }; });
             const totalCompra = cart.reduce(function(s, item) { return s + item.price * item.qty; }, 0);
             if (typeof salvarCompraFirebase === 'function') {
-                salvarCompraFirebase(itensCompra, totalCompra, 'pendente', mensagemConvidado, anonimoConvidado).then(function() {
+                salvarCompraFirebase(itensCompra, totalCompra, 'pendente', nomeConvidado, mensagemConvidado, anonimoConvidado).then(function() {
                     console.log('Compra salva no Firebase!');
                 }).catch(function(err) { console.error('Erro ao salvar compra:', err); });
             }
@@ -393,7 +405,7 @@ function openModal(id) {
     modalProduto = p;
     document.getElementById('modal-img').src = p.img;
     document.getElementById('modal-name').textContent = p.name;
-    document.getElementById('modal-price').textContent = p.simbolico ? 'R$ ' + p.price + '/cota' : 'R$ ' + p.price.toLocaleString('pt-BR');
+    document.getElementById('modal-price').innerHTML = p.simbolico ? formatPrice(p.price) + '/cota' : formatPrice(p.price);
     document.getElementById('modal-frase').textContent = p.frase || p.desc || '';
     const inCart = cart.find(item => item.id === p.id);
     const inCartQty = inCart ? inCart.qty : 0;
@@ -439,7 +451,7 @@ const produtos = {
     sala: [
         { id: 's1', name: 'Mesa de Centro', price: 199, img: 'prod-s1.jpg', frase: 'Onde o café da manhã acontece aos fins de semana.' },
         { id: 's2', name: 'Painel para TV', price: 179, img: 'prod-s2.jpg', jaPresenteado: true, frase: 'Netflix e abraço, nosso programa favorito.' },
-        { id: 's3', name: 'Smart TV', price: 699, img: 'prod-s3.jpg', frase: 'Sessão cinema em casa, todo dia!' },
+        { id: 's3', name: 'Televisão', price: 699, img: 'prod-s3.jpg', frase: 'Sessão cinema em casa, todo dia!' },
         { id: 's4', name: 'Tapetes Grandes', price: 149, img: 'prod-s4.jpg', frase: 'Conforto sob os pés e no coração.' },
         { id: 's5', name: 'Cortinas Grandes', price: 129, img: 'prod-s5.jpg', frase: 'Cortinas novas, privacidade e charme.' },
         { id: 's6', name: 'Luminária de Piso', price: 159, img: 'prod-s6.jpg', frase: 'Luz quente para noites de conversa.' },
@@ -493,13 +505,13 @@ function renderCard(p, cat) {
         btnAction = "toggleCart('"+p.id+"', '"+p.name.replace(/'/g, "\\'")+"', "+p.price+", '"+p.img+"', false)";
     }
     if (p.jaPresenteado) {
-        return '<div class="product-card ja-presenteado"><span class="tag-ja-presenteado">&#10004; Já Presenteado</span><img src="'+p.img+'" alt="'+p.name+'" class="product-img" onclick="openModal(\''+p.id+'\')"><div class="product-info"><div class="product-name">'+p.name+'</div><div class="product-price">R$ '+p.price.toLocaleString('pt-BR')+'</div><button class="btn-add-cart" style="background:var(--texto-claro);cursor:default;" disabled>&#10004; Já Enviado</button></div></div>';
+        return '<div class="product-card ja-presenteado"><span class="tag-ja-presenteado">&#10004; Já Presenteado</span><img src="'+p.img+'" alt="'+p.name+'" class="product-img" onclick="openModal(\''+p.id+'\')"><div class="product-info"><div class="product-name">'+p.name+'</div><div class="product-price">'+formatPrice(p.price)+'</div><button class="btn-add-cart" style="background:var(--texto-claro);cursor:default;" disabled>&#10004; Já Enviado</button></div></div>';
     }
     if (p.simbolico) {
         const progressPct = ((p.compradas || 0) / (p.total || 10)) * 100;
-        return '<div class="product-card simbolico-card"><img src="'+p.img+'" alt="'+p.name+'" class="product-img" onclick="openModal(\''+p.id+'\')"><div class="product-info"><div class="product-name">'+p.name+'</div><div class="simbolico-desc">'+p.desc+'</div><div class="cotas-compradas"><span class="tag-comprado">'+(p.compradas||0)+'/'+(p.total||10)+' cotas</span></div><div class="cotas-progress"><div class="cotas-progress-fill" style="width:'+progressPct+'%"></div></div><div class="product-price">R$ '+p.price+'/cota</div><button class="'+btnClass+'" id="btn-'+p.id+'" onclick="'+btnAction+'">'+btnText+'</button></div></div>';
+        return '<div class="product-card simbolico-card"><img src="'+p.img+'" alt="'+p.name+'" class="product-img" onclick="openModal(\''+p.id+'\')"><div class="product-info"><div class="product-name">'+p.name+'</div><div class="simbolico-desc">'+p.desc+'</div><div class="cotas-compradas"><span class="tag-comprado">'+(p.compradas||0)+'/'+(p.total||10)+' cotas</span></div><div class="cotas-progress"><div class="cotas-progress-fill" style="width:'+progressPct+'%"></div></div><div class="product-price">'+formatPrice(p.price)+'/cota</div><button class="'+btnClass+'" id="btn-'+p.id+'" onclick="'+btnAction+'">'+btnText+'</button></div></div>';
     }
-    return '<div class="product-card"><img src="'+p.img+'" alt="'+p.name+'" class="product-img" onclick="openModal(\''+p.id+'\')"><div class="product-info"><div class="product-name">'+p.name+'</div><div class="product-price">R$ '+p.price.toLocaleString('pt-BR')+'</div><button class="'+btnClass+'" id="btn-'+p.id+'" onclick="'+btnAction+'">'+btnText+'</button></div></div>';
+    return '<div class="product-card"><img src="'+p.img+'" alt="'+p.name+'" class="product-img" onclick="openModal(\''+p.id+'\')"><div class="product-info"><div class="product-name">'+p.name+'</div><div class="product-price">'+formatPrice(p.price)+'</div><button class="'+btnClass+'" id="btn-'+p.id+'" onclick="'+btnAction+'">'+btnText+'</button></div></div>';
 }
 
 function renderAll() {
@@ -513,6 +525,9 @@ function renderAll() {
         const ordem = ['cozinha', 'sala', 'quarto', 'lavanderia', 'simbolicos'];
         for (const cat of ordem) {
             const catLabel = { cozinha: 'Cozinha', sala: 'Sala', quarto: 'Quarto', lavanderia: 'Lavanderia', simbolicos: 'Simbólicos' }[cat];
+            if (cat === 'simbolicos') {
+                allItems += '<div style="grid-column:1/-1;text-align:center;padding:20px 16px;background:linear-gradient(135deg,rgba(196,154,108,0.1) 0%,rgba(114,47,55,0.06) 100%);border-radius:12px;margin:8px 0 16px;"><p style="font-family:'Great Vibes',cursive;font-size:1.4rem;color:var(--marsala);margin-bottom:8px;">Um Carinho a Mais</p><p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.9rem;color:var(--texto-claro);line-height:1.5;">Além dos presentes, se quiser fazer parte da nossa história de um jeito especial, cada cota é um gesto de amor. Não é obrigatório — é um convite do coração.</p><p style="font-family:'Cormorant Garamond',serif;font-size:0.8rem;color:var(--marsala);margin-top:8px;"><strong>Cada cota: R$ 50</strong></p></div>';
+            }
             allItems += '<div class="cat-title" style="grid-column:1/-1;margin-top:8px;">'+catLabel+'</div>';
             allItems += produtos[cat].map(p => renderCard(p, cat)).join('');
         }
