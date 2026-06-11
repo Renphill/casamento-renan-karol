@@ -77,13 +77,16 @@ function excluirPresenca(id) {
 }
 
 // Salvar compra no Firebase
-function salvarCompraFirebase(itens, total, status) {
-    return refs.compras.push({
+function salvarCompraFirebase(itens, total, status, mensagem, anonimo) {
+    const dados = {
         itens: itens,
         total: total,
         status: status || 'pendente',
         data: new Date().toISOString()
-    });
+    };
+    if (mensagem) dados.mensagem = mensagem;
+    if (anonimo) dados.anonimo = true;
+    return refs.compras.push(dados);
 }
 
 // Atualizar cota comprada (incrementa e faz auto-expansao de 5 em 5)

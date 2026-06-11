@@ -298,11 +298,14 @@ function carregarDados() {
             const itens = c.itens ? c.itens.map(function(i) { return i.title || i.name; }).join(', ') : (c.itens || '-');
             const statusClass = c.status === 'aprovado' ? 'status-aprovado' : 'status-pendente';
             const btnPagar = c.status !== 'aprovado' ? '<button class="btn-pagar" onclick="marcarPago(\''+c.id+'\')">Marcar como Pago</button>' : '';
+            const anonimoBadge = c.anonimo ? '<span style="background:#6c757d;color:#fff;font-size:0.55rem;padding:2px 6px;border-radius:4px;margin-left:4px;">ANÔNIMO</span>' : '';
+            const mensagemHtml = c.mensagem ? '<div class="texto" style="margin-top:6px;font-style:italic;color:var(--marsala);background:rgba(196,154,108,0.08);padding:8px;border-radius:8px;">&#128150; "'+escapeHtml(c.mensagem)+'"'+anonimoBadge+'</div>' : '';
             return '<div class="item-card compra-item">' +
                 '<button class="btn-excluir" onclick="excluirComp(\''+c.id+'\')">Excluir</button>' +
                 btnPagar +
                 '<div class="compra-total">R$ '+(c.total || 0).toLocaleString('pt-BR')+' <span class="compra-status '+statusClass+'">'+(c.status || 'pendente')+'</span></div>' +
                 '<div class="texto" style="margin-top:6px;"><strong>Itens:</strong> '+escapeHtml(itens)+'</div>' +
+                mensagemHtml +
                 '<div class="data">'+formatarData(c.data)+'</div>' +
             '</div>';
         }).join('');
@@ -347,14 +350,14 @@ function marcarPago(id) {
             if (compra && compra.itens) {
                 // Registra cotas para cada item simbolico
                 compra.itens.forEach(function(item) {
-                    const itemId = item.id;
-                    // Verifica se eh uma cota simbolica
+                    const itemId = item.id || item.name;
+                    // Verifica se eh uma cota simbolica (por id ou flag simbolico)
                     const cotaIds = ['lua1','lua2','lua3','lua4','lua5','lua6','d1','d2','d3','d4','d5','d6','d7','d8','d9'];
-                    if (itemId && cotaIds.includes(itemId)) {
-                        const qty = item.qty || 1;
+                    if ((itemId && cotaIds.includes(itemId)) || item.simbolico) {
+                        const qty = item.qty || item.quantity || 1;
                         if (typeof registrarCotaFirebase === 'function') {
-                            registrarCotaFirebase(itemId, qty);
-                            console.log('Cota ' + itemId + ' registrada: +' + qty);
+                            registrarCotaFirebase(itemId || item.name, qty);
+                            console.log('Cota ' + (itemId || item.name) + ' registrada: +' + qty);
                         }
                     }
                 });

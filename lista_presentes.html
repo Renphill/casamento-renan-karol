@@ -95,7 +95,6 @@
         .btn-add-cart:hover { background: var(--marsala-escuro); }
         .btn-add-cart.in-cart { background: linear-gradient(135deg, var(--dourado), #A67B5B); }
 
-        .tag-simbolico { display: inline-block; background: var(--dourado); color: #fff; font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 3px 8px; border-radius: 8px; position: absolute; top: 8px; left: 8px; z-index: 2; }
         .tag-ja-presenteado { display: inline-block; background: linear-gradient(135deg, #28a745, #34ce57); color: #fff; font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 8px; position: absolute; top: 8px; left: 8px; z-index: 2; }
         .tag-comprado { display: inline-block; background: linear-gradient(135deg, #6c757d, #868e96); color: #fff; font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 3px 8px; border-radius: 8px; }
 
@@ -157,8 +156,7 @@
                 <button class="tab" onclick="showTab('sala')">&#127968; Sala</button>
                 <button class="tab" onclick="showTab('quarto')">&#128719; Quarto</button>
                 <button class="tab" onclick="showTab('lavanderia')">&#129530; Lavanderia</button>
-                <button class="tab" onclick="showTab('lua')">&#9992; Lua de Mel</button>
-                <button class="tab" onclick="showTab('divertidas')">&#127881; Divertidas</button>
+                <button class="tab" onclick="showTab('simbolicos')">&#10084; Simbólicos</button>
             </div>
         </div>
 
@@ -167,18 +165,13 @@
         <div class="tab-content" id="sala"><div class="products-grid" id="grid-sala"></div></div>
         <div class="tab-content" id="quarto"><div class="products-grid" id="grid-quarto"></div></div>
         <div class="tab-content" id="lavanderia"><div class="products-grid" id="grid-lavanderia"></div></div>
-        <div class="tab-content" id="lua">
-            <div style="text-align:center;padding:16px;background:linear-gradient(135deg,rgba(196,154,108,0.08) 0%,rgba(114,47,55,0.04) 100%);border-radius:12px;margin-bottom:16px;">
-                <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.95rem;color:var(--marsala);line-height:1.6;">Cada cota custa <strong>R$ 20</strong>. Escolha quantas quiser e ajude a construir nossa lua de mel dos sonhos!</p>
+        <div class="tab-content" id="simbolicos">
+            <div style="text-align:center;padding:20px 16px;background:linear-gradient(135deg,rgba(196,154,108,0.1) 0%,rgba(114,47,55,0.06) 100%);border-radius:12px;margin-bottom:16px;">
+                <p style="font-family:'Great Vibes',cursive;font-size:1.4rem;color:var(--marsala);margin-bottom:8px;">Gestos que se tornam Memórias</p>
+                <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.95rem;color:var(--texto-claro);line-height:1.6;">Nem todo presente precisa ter tamanho físico. Às vezes, o que mais toca o coração é um gesto simbólico — uma cota de amor que nos leva mais perto dos nossos sonhos. Cada contribuição aqui é um pedacinho da nossa história que vocês estão ajudando a construir. Com humildade e gratidão, agradecemos de coração.</p>
+                <p style="font-family:'Cormorant Garamond',serif;font-size:0.85rem;color:var(--marsala);margin-top:10px;"><strong>Cada cota: R$ 50</strong> &mdash; Compre quantas quiser!</p>
             </div>
-            <div class="products-grid" id="grid-lua"></div>
-        </div>
-        <div class="tab-content" id="divertidas">
-            <div style="text-align:center;padding:16px;background:linear-gradient(135deg,rgba(196,154,108,0.08) 0%,rgba(114,47,55,0.04) 100%);border-radius:12px;margin-bottom:16px;">
-                <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.95rem;color:var(--marsala);line-height:1.6;">&#127914; <strong>Ajude-nos a evitar...</strong> Se isso aconteceu com seus amigos casados, nos ajude para que <strong>N&Atilde;O aconte&ccedil;a no nosso!</strong></p>
-                <p style="font-size:0.75rem;color:var(--texto-claro);margin-top:6px;">Cotas de <strong>R$ 20</strong> cada. Compre quantas quiser!</p>
-            </div>
-            <div class="products-grid" id="grid-divertidas"></div>
+            <div class="products-grid" id="grid-simbolicos"></div>
         </div>
 
         <div class="valor-livre-banner">
@@ -200,6 +193,14 @@
             <div class="cart-empty"><div class="icon">&#128722;</div><p>Seu carrinho est&aacute; vazio.<br>Adicione presentes com carinho!</p></div>
         </div>
         <div class="cart-footer" id="cart-footer" style="display:none;">
+            <div style="margin-bottom:16px;padding:12px;background:rgba(196,154,108,0.06);border-radius:12px;border:1px solid rgba(196,154,108,0.15);">
+                <label style="font-size:0.65rem;font-weight:600;color:var(--marsala);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">&#128150; Deixe uma mensagem de carinho</label>
+                <textarea id="cart-mensagem" placeholder="Escreva algo especial para Renan e Karol..." style="width:100%;padding:10px;border:1px solid rgba(196,154,108,0.2);border-radius:8px;font-family:'Cormorant Garamond',serif;font-size:0.85rem;color:var(--texto);resize:none;height:60px;outline:none;background:var(--branco);"></textarea>
+                <label style="display:flex;align-items:center;gap:6px;margin-top:8px;cursor:pointer;font-size:0.7rem;color:var(--texto-claro);">
+                    <input type="checkbox" id="cart-anonimo" style="accent-color:var(--marsala);width:14px;height:14px;">
+                    Enviar como anônimo
+                </label>
+            </div>
             <div class="cart-total"><span class="cart-total-label">Total:</span><span class="cart-total-value" id="cart-total">R$ 0</span></div>
             <button class="cart-checkout" id="cart-checkout-btn" onclick="checkoutCart()">&#128179; Finalizar Compra</button>
             <button class="cart-continuar" onclick="closeCart()">Continuar comprando</button>
@@ -331,7 +332,7 @@ async function checkoutCart() {
         if (btn) { btn.disabled = true; btn.textContent = 'Processando...'; }
         showToast('Gerando pagamento seguro...');
         
-        const items = cart.map(function(item) { return { title: 'Presente - '+item.name, quantity: item.qty, unit_price: item.price }; });
+        const items = cart.map(function(item) { return { title: 'Presente - '+item.name, quantity: item.qty, unit_price: item.price, id: item.id, simbolico: item.simbolico }; });
         
         const controller = new AbortController();
         const fetchTimeout = setTimeout(function() { controller.abort(); }, 10000);
@@ -340,7 +341,7 @@ async function checkoutCart() {
             method: 'POST',
             signal: controller.signal,
             headers: { 'Authorization': 'Bearer '+MP_ACCESS_TOKEN, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: items, back_urls: { success: 'https://npuf5ea3gxuyw.kimi.page/lista_presentes.html?status=success', failure: 'https://npuf5ea3gxuyw.kimi.page/lista_presentes.html?status=failure', pending: 'https://npuf5ea3gxuyw.kimi.page/lista_presentes.html?status=pending' }, auto_return: 'approved', payer: { name: 'Convidado' } })
+            body: JSON.stringify({ items: items, back_urls: { success: 'https://renphill.github.io/casamento-renan-karol/lista_presentes.html?status=success', failure: 'https://renphill.github.io/casamento-renan-karol/lista_presentes.html?status=failure', pending: 'https://renphill.github.io/casamento-renan-karol/lista_presentes.html?status=pending' }, auto_return: 'approved', payer: { name: 'Convidado' } })
         });
         clearTimeout(fetchTimeout);
         clearTimeout(safetyTimeout);
@@ -355,10 +356,12 @@ async function checkoutCart() {
         const data = await response.json();
         if (data.init_point) {
             // Salva a compra no Firebase antes de redirecionar
-            const itensCompra = cart.map(function(item) { return { name: item.name, price: item.price, qty: item.qty }; });
+            const mensagemConvidado = document.getElementById('cart-mensagem') ? document.getElementById('cart-mensagem').value : '';
+            const anonimoConvidado = document.getElementById('cart-anonimo') ? document.getElementById('cart-anonimo').checked : false;
+            const itensCompra = cart.map(function(item) { return { name: item.name, price: item.price, qty: item.qty, id: item.id, simbolico: item.simbolico }; });
             const totalCompra = cart.reduce(function(s, item) { return s + item.price * item.qty; }, 0);
             if (typeof salvarCompraFirebase === 'function') {
-                salvarCompraFirebase(itensCompra, totalCompra, 'pendente').then(function() {
+                salvarCompraFirebase(itensCompra, totalCompra, 'pendente', mensagemConvidado, anonimoConvidado).then(function() {
                     console.log('Compra salva no Firebase!');
                 }).catch(function(err) { console.error('Erro ao salvar compra:', err); });
             }
@@ -390,7 +393,7 @@ function openModal(id) {
     modalProduto = p;
     document.getElementById('modal-img').src = p.img;
     document.getElementById('modal-name').textContent = p.name;
-    document.getElementById('modal-price').textContent = p.simbolico ? 'R$ 20/cota' : 'R$ ' + p.price.toLocaleString('pt-BR');
+    document.getElementById('modal-price').textContent = p.simbolico ? 'R$ ' + p.price + '/cota' : 'R$ ' + p.price.toLocaleString('pt-BR');
     document.getElementById('modal-frase').textContent = p.frase || p.desc || '';
     const inCart = cart.find(item => item.id === p.id);
     const inCartQty = inCart ? inCart.qty : 0;
@@ -412,76 +415,67 @@ function findProduto(id) { for (const cat in produtos) { const p = produtos[cat]
 // ===== PRODUTOS =====
 const produtos = {
     cozinha: [
-        { id: 'c1', name: 'Jogo de Panelas de Cerâmica', price: 250, img: 'prod-c1.jpg', frase: 'Panelas novas, refeições cheias de amor!' },
-        { id: 'c2', name: 'Panela de Pressão Elétrica', price: 180, img: 'prod-c2.jpg', frase: 'Feijão cozido em minutos, amor eterno.' },
-        { id: 'c3', name: 'Aparelho de Jantar', price: 200, img: 'prod-c3.jpg', frase: 'Mesa posta, coração aquecido.' },
-        { id: 'c4', name: 'Máquina de Café Expresso', price: 220, img: 'prod-c4.jpg', frase: 'Café quentinho para começar o dia juntos.' },
-        { id: 'c5', name: 'Geladeira', price: 600, img: 'prod-c5.jpg', frase: 'O coração da nossa cozinha!' },
-        { id: 'c6', name: 'Fogão', price: 450, img: 'prod-c6.jpg', jaPresenteado: true, frase: 'Onde as melhores receitas serão feitas.' },
-        { id: 'c7', name: 'Bebedouro Elétrico', price: 150, img: 'prod-c7.jpg', frase: 'Água fresca sempre ao alcance.' },
-        { id: 'c8', name: 'Micro-ondas', price: 220, img: 'prod-c8.jpg', jaPresenteado: true, frase: 'Rapidez nos dias corridos de casados.' },
-        { id: 'c9', name: 'Airfryer', price: 180, img: 'prod-c9.jpg', jaPresenteado: true, frase: 'Crocância sem culpa, petiscos de casal!' },
-        { id: 'c10', name: 'Lava-louças', price: 400, img: 'prod-c10.jpg', frase: 'Mais tempo juntos, menos louça na pia!' },
-        { id: 'c11', name: 'Forno Elétrico', price: 280, img: 'prod-c11.jpg', frase: 'Bolos, pizzas e muito amor assado.' },
-        { id: 'c12', name: 'Fogão de Indução', price: 350, img: 'prod-c12.jpg', frase: 'Tecnologia e sabor na cozinha.' },
-        { id: 'c13', name: 'Chaleira Elétrica', price: 100, img: 'prod-c13.jpg', jaPresenteado: true, frase: 'Chá da tarde a dois, todos os dias.' },
-        { id: 'c14', name: 'Churrasqueira Elétrica', price: 150, img: 'prod-c14.jpg', frase: 'Churrasco de casal, sem sair de casa!' },
-        { id: 'c15', name: 'Máquina de Sorvete', price: 150, img: 'prod-c15.jpg', jaPresenteado: true, frase: 'Sorvete caseiro para dias quentes de amor.' },
-        { id: 'c16', name: 'Mixer 3 em 1', price: 140, img: 'prod-c16.jpg', frase: 'Tritura, bate e mistura o amor!' },
-        { id: 'c17', name: 'Liquidificador', price: 120, img: 'prod-c17.jpg', jaPresenteado: true, frase: 'Vitaminas de manhã, amor à tarde.' },
-        { id: 'c18', name: 'Processador de Alimentos', price: 175, img: 'prod-c18.jpg', frase: 'Corta, rala e facilita a vida!' },
+        { id: 'c1', name: 'Jogo de Panelas de Cerâmica', price: 249, img: 'prod-c1.jpg', frase: 'Panelas novas, refeições cheias de amor!' },
+        { id: 'c2', name: 'Panela de Pressão Elétrica', price: 179, img: 'prod-c2.jpg', frase: 'Feijão cozido em minutos, amor eterno.' },
+        { id: 'c3', name: 'Aparelho de Jantar', price: 199, img: 'prod-c3.jpg', frase: 'Mesa posta, coração aquecido.' },
+        { id: 'c4', name: 'Máquina de Café Expresso', price: 219, img: 'prod-c4.jpg', frase: 'Café quentinho para começar o dia juntos.' },
+        { id: 'c5', name: 'Geladeira', price: 1490, img: 'prod-c5.jpg', frase: 'O coração da nossa cozinha!' },
+        { id: 'c6', name: 'Fogão', price: 449, img: 'prod-c6.jpg', jaPresenteado: true, frase: 'Onde as melhores receitas serão feitas.' },
+        { id: 'c7', name: 'Bebedouro Elétrico', price: 149, img: 'prod-c7.jpg', frase: 'Água fresca sempre ao alcance.' },
+        { id: 'c8', name: 'Micro-ondas', price: 219, img: 'prod-c8.jpg', jaPresenteado: true, frase: 'Rapidez nos dias corridos de casados.' },
+        { id: 'c9', name: 'Airfryer', price: 179, img: 'prod-c9.jpg', jaPresenteado: true, frase: 'Crocância sem culpa, petiscos de casal!' },
+        { id: 'c10', name: 'Lava-louças', price: 399, img: 'prod-c10.jpg', frase: 'Mais tempo juntos, menos louça na pia!' },
+        { id: 'c11', name: 'Forno Elétrico', price: 279, img: 'prod-c11.jpg', frase: 'Bolos, pizzas e muito amor assado.' },
+        { id: 'c12', name: 'Fogão de Indução', price: 349, img: 'prod-c12.jpg', frase: 'Tecnologia e sabor na cozinha.' },
+        { id: 'c13', name: 'Chaleira Elétrica', price: 99, img: 'prod-c13.jpg', jaPresenteado: true, frase: 'Chá da tarde a dois, todos os dias.' },
+        { id: 'c14', name: 'Churrasqueira Elétrica', price: 149, img: 'prod-c14.jpg', frase: 'Churrasco de casal, sem sair de casa!' },
+        { id: 'c15', name: 'Máquina de Sorvete', price: 149, img: 'prod-c15.jpg', jaPresenteado: true, frase: 'Sorvete caseiro para dias quentes de amor.' },
+        { id: 'c16', name: 'Mixer 3 em 1', price: 139, img: 'prod-c16.jpg', frase: 'Tritura, bate e mistura o amor!' },
+        { id: 'c17', name: 'Liquidificador', price: 119, img: 'prod-c17.jpg', jaPresenteado: true, frase: 'Vitaminas de manhã, amor à tarde.' },
+        { id: 'c18', name: 'Processador de Alimentos', price: 174, img: 'prod-c18.jpg', frase: 'Corta, rala e facilita a vida!' },
+        { id: 'c19', name: 'Armário de Cozinha', price: 599, img: 'prod-c19.jpg', frase: 'Organização para a alma da casa!' },
+        { id: 'c20', name: 'Espremedor de Frutas Elétrico', price: 179, img: 'prod-c20.jpg', frase: 'Suco fresco para começar o dia bem!' },
     ],
     sala: [
-        { id: 's1', name: 'Mesa de Centro', price: 200, img: 'prod-s1.jpg', frase: 'Onde o café da manhã acontece aos fins de semana.' },
-        { id: 's2', name: 'Painel para TV', price: 180, img: 'prod-s2.jpg', jaPresenteado: true, frase: 'Netflix e abraço, nosso programa favorito.' },
-        { id: 's3', name: 'Smart TV', price: 700, img: 'prod-s3.jpg', frase: 'Sessão cinema em casa, todo dia!' },
-        { id: 's4', name: 'Tapetes Grandes', price: 150, img: 'prod-s4.jpg', frase: 'Conforto sob os pés e no coração.' },
-        { id: 's5', name: 'Cortinas Grandes', price: 130, img: 'prod-s5.jpg', frase: 'Cortinas novas, privacidade e charme.' },
-        { id: 's6', name: 'Luminária de Piso', price: 160, img: 'prod-s6.jpg', frase: 'Luz quente para noites de conversa.' },
-        { id: 's7', name: 'Luminária de Mesa', price: 100, img: 'prod-s7.jpg', frase: 'Iluminação perfeita para momentos especiais.' },
-        { id: 's8', name: 'Alexa', price: 250, img: 'prod-s8.jpg', jaPresenteado: true, frase: 'Assistente virtual para a vida de casados!' },
-        { id: 's9', name: 'Robô Aspirador', price: 350, img: 'prod-s9.jpg', jaPresenteado: true, frase: 'Limpo sem esforço, mais tempo para nós.' },
-        { id: 's10', name: 'Ar-condicionado', price: 500, img: 'prod-s10.jpg', frase: 'Noite fresca e sono tranquilo.' },
-        { id: 's11', name: 'Umidificador', price: 120, img: 'prod-s11.jpg', jaPresenteado: true, frase: 'Ar puro e ambiente agradável.' },
-        { id: 's12', name: 'Puff', price: 120, img: 'prod-s12.jpg', frase: 'Conforto extra para relaxar juntos.' },
-        { id: 's13', name: 'Aspirador de Pó', price: 150, img: 'prod-s13.jpg', frase: 'Casa limpa, coração leve!' },
+        { id: 's1', name: 'Mesa de Centro', price: 199, img: 'prod-s1.jpg', frase: 'Onde o café da manhã acontece aos fins de semana.' },
+        { id: 's2', name: 'Painel para TV', price: 179, img: 'prod-s2.jpg', jaPresenteado: true, frase: 'Netflix e abraço, nosso programa favorito.' },
+        { id: 's3', name: 'Smart TV', price: 699, img: 'prod-s3.jpg', frase: 'Sessão cinema em casa, todo dia!' },
+        { id: 's4', name: 'Tapetes Grandes', price: 149, img: 'prod-s4.jpg', frase: 'Conforto sob os pés e no coração.' },
+        { id: 's5', name: 'Cortinas Grandes', price: 129, img: 'prod-s5.jpg', frase: 'Cortinas novas, privacidade e charme.' },
+        { id: 's6', name: 'Luminária de Piso', price: 159, img: 'prod-s6.jpg', frase: 'Luz quente para noites de conversa.' },
+        { id: 's7', name: 'Luminária de Mesa', price: 99, img: 'prod-s7.jpg', frase: 'Iluminação perfeita para momentos especiais.' },
+        { id: 's8', name: 'Alexa', price: 249, img: 'prod-s8.jpg', jaPresenteado: true, frase: 'Assistente virtual para a vida de casados!' },
+        { id: 's9', name: 'Robô Aspirador', price: 349, img: 'prod-s9.jpg', jaPresenteado: true, frase: 'Limpo sem esforço, mais tempo para nós.' },
+        { id: 's10', name: 'Ar-condicionado', price: 799, img: 'prod-s10.jpg', frase: 'Noite fresca e sono tranquilo.' },
+        { id: 's11', name: 'Umidificador', price: 119, img: 'prod-s11.jpg', jaPresenteado: true, frase: 'Ar puro e ambiente agradável.' },
+        { id: 's12', name: 'Puff', price: 119, img: 'prod-s12.jpg', frase: 'Conforto extra para relaxar juntos.' },
+        { id: 's13', name: 'Aspirador de Pó', price: 149, img: 'prod-s13.jpg', frase: 'Casa limpa, coração leve!' },
+        { id: 's14', name: 'Sofá', price: 799, img: 'prod-s14.jpg', frase: 'Aconchego para sessões cinema a dois!' },
     ],
     quarto: [
-        { id: 'q1', name: 'Jogo de Cama King', price: 200, img: 'prod-q1.jpg', frase: 'Lençóis macios para sonhar juntos.' },
-        { id: 'q2', name: 'Edredom', price: 150, img: 'prod-q2.jpg', frase: 'Aconchego nos dias frios de amor.' },
-        { id: 'q3', name: 'Ventilador', price: 180, img: 'prod-q3.jpg', jaPresenteado: true, frase: 'Brisa fresca para noites de verão.' },
-        { id: 'q4', name: 'Espelho de Corpo Inteiro', price: 120, img: 'prod-q4.jpg', frase: 'Para se admirar antes de sair juntos!' },
-        { id: 'q5', name: 'Cama de Casal', price: 800, img: 'prod-q5.jpg', frase: 'Onde nossos sonhos se encontram.' },
-        { id: 'q6', name: 'Guarda-roupa', price: 500, img: 'prod-q6.jpg', frase: 'Espaço para as roupas de dois apaixonados.' },
-        { id: 'q7', name: 'Moto', price: 2500, img: 'prod-q7.jpg', frase: 'Aventuras sobre duas rodas, lado a lado!' },
+        { id: 'q1', name: 'Jogo de Cama King', price: 199, img: 'prod-q1.jpg', frase: 'Lençóis macios para sonhar juntos.' },
+        { id: 'q2', name: 'Edredom', price: 149, img: 'prod-q2.jpg', frase: 'Aconchego nos dias frios de amor.' },
+        { id: 'q3', name: 'Ventilador', price: 179, img: 'prod-q3.jpg', jaPresenteado: true, frase: 'Brisa fresca para noites de verão.' },
+        { id: 'q4', name: 'Espelho de Corpo Inteiro', price: 119, img: 'prod-q4.jpg', frase: 'Para se admirar antes de sair juntos!' },
+        { id: 'q5', name: 'Cama de Casal', price: 699, img: 'prod-q5.jpg', frase: 'Onde nossos sonhos se encontram.' },
+        { id: 'q6', name: 'Guarda-roupa', price: 599, img: 'prod-q6.jpg', frase: 'Espaço para as roupas de dois apaixonados.' },
+        { id: 'q7', name: 'Estante de Sala', price: 279, img: 'prod-q7.jpg', frase: 'Onde nossas memórias ficarão expostas.' },
     ],
     lavanderia: [
-        { id: 'l1', name: 'Máquina de Lavar', price: 700, img: 'prod-l1.jpg', jaPresenteado: true, frase: 'Roupas limpas, vida organizada!' },
-        { id: 'l2', name: 'Tanquinho', price: 280, img: 'prod-l2.jpg', frase: 'Lavanderia prática no dia a dia.' },
-        { id: 'l3', name: 'Passadeira a Vapor', price: 200, img: 'prod-l3.jpg', frase: 'Roupas impecáveis para sair juntos!' },
-        { id: 'l4', name: 'Escada Dobrável', price: 160, img: 'prod-l4.jpg', frase: 'Alcance o que for preciso, juntos!' },
-        { id: 'l5', name: 'Kit de Ferramentas', price: 145, img: 'prod-l5.jpg', frase: 'Para os concertos da casa e do coração.' },
-        { id: 'l6', name: 'Furadeira', price: 150, img: 'prod-l6.jpg', jaPresenteado: true, frase: 'O maridão vai adorar essa!' },
-        { id: 'l7', name: 'Kit de Cabides Organizadores', price: 80, img: 'prod-l7.jpg', jaPresenteado: true, frase: 'Organização é tudo na vida de casados!' },
+        { id: 'l1', name: 'Máquina de Lavar', price: 699, img: 'prod-l1.jpg', jaPresenteado: true, frase: 'Roupas limpas, vida organizada!' },
+        { id: 'l2', name: 'Tanquinho', price: 279, img: 'prod-l2.jpg', frase: 'Lavanderia prática no dia a dia.' },
+        { id: 'l3', name: 'Passadeira a Vapor', price: 199, img: 'prod-l3.jpg', frase: 'Roupas impecáveis para sair juntos!' },
+        { id: 'l4', name: 'Escada Dobrável', price: 159, img: 'prod-l4.jpg', frase: 'Alcance o que for preciso, juntos!' },
+
+        { id: 'l6', name: 'Furadeira', price: 149, img: 'prod-l6.jpg', jaPresenteado: true, frase: 'O maridão vai adorar essa!' },
+        { id: 'l7', name: 'Kit de Cabides Organizadores', price: 79, img: 'prod-l7.jpg', jaPresenteado: true, frase: 'Organização é tudo na vida de casados!' },
     ],
-    lua: [
-        { id: 'lua1', name: 'Cota da Passagem', price: 20, img: 'simb-lua.jpg', simbolico: true, desc: 'Nos leve até o destino dos sonhos', compradas: 3, total: 10, frase: 'Cada cota é um quilômetro mais perto do paraíso!' },
-        { id: 'lua2', name: 'Cota do Hotel', price: 20, img: 'simb-lua.jpg', simbolico: true, desc: 'Uma noite aconchegante a dois', compradas: 1, total: 10, frase: 'Um quarto só nosso, cheio de amor!' },
-        { id: 'lua3', name: 'Cota do Jantar Romântico', price: 20, img: 'simb-lua.jpg', simbolico: true, desc: 'À luz de velas, vinho e nós dois', compradas: 1, total: 10, frase: 'Jantar à luz de velas, amor no ar!' },
-        { id: 'lua4', name: 'Cota do Passeio Turístico', price: 20, img: 'simb-lua.jpg', simbolico: true, desc: 'Conhecendo lugares novos juntos', compradas: 0, total: 10, frase: 'Aventuras e memórias inesquecíveis!' },
-        { id: 'lua5', name: 'Cota do Aluguel de Carro', price: 20, img: 'simb-lua.jpg', simbolico: true, desc: 'Para explorar cada cantinho', compradas: 0, total: 10, frase: 'Quatro rodas para explorar o mundo a dois!' },
-        { id: 'lua6', name: 'Cota das Fotos da Viagem', price: 20, img: 'simb-lua.jpg', simbolico: true, desc: 'Para eternizar cada momento', compradas: 0, total: 10, frase: 'Fotos que vão para o álbum de casal!' },
-    ],
-    divertidas: [
-        { id: 'd1', name: '1ª Viagem de Carro dos Casados', price: 20, img: 'simb-divertidas.jpg', simbolico: true, desc: 'A primeira aventura sobre quatro rodas', compradas: 1, total: 10, frase: 'Estrada aberta, amor no volante!' },
-        { id: 'd2', name: 'Viagem Surpresa', price: 20, img: 'simb-divertidas.jpg', simbolico: true, desc: 'Para momentos inesperados e especiais', compradas: 1, total: 10, frase: 'Surpresa boa é surpresa de casal!' },
-        { id: 'd3', name: 'Final de Semana Romântico', price: 20, img: 'simb-divertidas.jpg', simbolico: true, desc: 'Dias só de nós dois e muito amor', compradas: 1, total: 10, frase: '48 horas só nosso, sem distrações!' },
-        { id: 'd4', name: 'Noivo Não Esquece a Data!', price: 20, img: 'simb-divertidas.jpg', simbolico: true, desc: 'Porque ele já esqueceu 3 vezes esse mês...', compradas: 3, total: 10, frase: 'Seguro contra o maridão esquecido!' },
-        { id: 'd5', name: '1º Churrasco dos Casados', price: 20, img: 'simb-divertidas.jpg', simbolico: true, desc: 'Carvão, carne e muita risada', compradas: 0, total: 10, frase: 'O primeiro de muitos churrascos juntos!' },
-        { id: 'd6', name: 'Brigas Terminam em Pizza', price: 20, img: 'simb-divertidas.jpg', simbolico: true, desc: 'Melhor final para qualquer discussão', compradas: 2, total: 10, frase: 'Pizza resolve tudo, principalmente briga!' },
-        { id: 'd7', name: 'Mimos da Esposa', price: 20, img: 'simb-divertidas.jpg', simbolico: true, desc: 'Chocolate, flores e carinho sem fim', compradas: 5, total: 10, frase: 'Mimos que tocam o coração da noiva!' },
-        { id: 'd8', name: 'Videogame do Marido', price: 20, img: 'simb-divertidas.jpg', simbolico: true, desc: 'Se a esposa deixar, claro...', compradas: 3, total: 10, frase: 'Diversão garantida para o noivo!' },
-        { id: 'd9', name: '\u201cDesculpa, Você Tinha Razão\u201d', price: 20, img: 'simb-divertidas.jpg', simbolico: true, desc: 'Ela sempre tem. Sempre.', compradas: 2, total: 10, frase: 'A cota mais honesta de todas!' },
+    simbolicos: [
+        { id: 'lua1', name: 'Cota Lua de Mel', price: 50, img: 'simb-lua.jpg', simbolico: true, compradas: 3, total: 10, frase: 'Cada cota é um passo mais perto do paraíso dos nossos sonhos!', desc: 'Nos leve até o destino mais romântico da nossa vida' },
+        { id: 'd4', name: 'Pro noivo não esquecer as datas!', price: 50, img: 'simb-divertidas.jpg', simbolico: true, compradas: 3, total: 10, frase: 'Seguro contra o maridão esquecido!', desc: 'Porque ele já esqueceu 3 vezes esse mês...' },
+        { id: 'd7', name: 'Mimos da Esposa', price: 50, img: 'simb-divertidas.jpg', simbolico: true, compradas: 5, total: 10, frase: 'Mimos que tocam o coração da noiva!', desc: 'Chocolate, flores e carinho sem fim' },
+        { id: 'd9', name: 'Desculpa, você tinha razão', price: 50, img: 'simb-divertidas.jpg', simbolico: true, compradas: 2, total: 10, frase: 'A cota mais honesta de todas!', desc: 'Ela sempre tem. Sempre.' },
+        { id: 'd8', name: 'Videogame do Marido', price: 50, img: 'simb-divertidas.jpg', simbolico: true, compradas: 3, total: 10, frase: 'Diversão garantida para o noivo!', desc: 'Se a esposa deixar, claro...' },
     ]
 };
 
@@ -492,7 +486,7 @@ function renderCard(p, cat) {
     if (p.simbolico) {
         btnText = inCartQty > 0 ? 'Adicionar mais (' + inCartQty + ')' : 'Presentear';
         btnClass = inCartQty > 0 ? 'btn-add-cart in-cart' : 'btn-add-cart';
-        btnAction = "addToCart('"+p.id+"', '"+p.name.replace(/'/g, "\\'")+"', 20, '"+p.img+"', true)";
+        btnAction = "addToCart('"+p.id+"', '"+p.name.replace(/'/g, "\\'")+"', "+p.price+", '"+p.img+"', true)";
     } else {
         btnText = inCartQty > 0 ? 'No Carrinho' : 'Presentear';
         btnClass = inCartQty > 0 ? 'btn-add-cart in-cart' : 'btn-add-cart';
@@ -503,22 +497,22 @@ function renderCard(p, cat) {
     }
     if (p.simbolico) {
         const progressPct = ((p.compradas || 0) / (p.total || 10)) * 100;
-        return '<div class="product-card simbolico-card"><span class="tag-simbolico">Cota R$ 20</span><img src="'+p.img+'" alt="'+p.name+'" class="product-img" onclick="openModal(\''+p.id+'\')"><div class="product-info"><div class="product-name">'+p.name+'</div><div class="simbolico-desc">'+p.desc+'</div><div class="cotas-compradas"><span class="tag-comprado">'+(p.compradas||0)+'/'+(p.total||10)+' cotas</span></div><div class="cotas-progress"><div class="cotas-progress-fill" style="width:'+progressPct+'%"></div></div><div class="product-price">R$ 20/cota</div><button class="'+btnClass+'" id="btn-'+p.id+'" onclick="'+btnAction+'">'+btnText+'</button></div></div>';
+        return '<div class="product-card simbolico-card"><img src="'+p.img+'" alt="'+p.name+'" class="product-img" onclick="openModal(\''+p.id+'\')"><div class="product-info"><div class="product-name">'+p.name+'</div><div class="simbolico-desc">'+p.desc+'</div><div class="cotas-compradas"><span class="tag-comprado">'+(p.compradas||0)+'/'+(p.total||10)+' cotas</span></div><div class="cotas-progress"><div class="cotas-progress-fill" style="width:'+progressPct+'%"></div></div><div class="product-price">R$ '+p.price+'/cota</div><button class="'+btnClass+'" id="btn-'+p.id+'" onclick="'+btnAction+'">'+btnText+'</button></div></div>';
     }
     return '<div class="product-card"><img src="'+p.img+'" alt="'+p.name+'" class="product-img" onclick="openModal(\''+p.id+'\')"><div class="product-info"><div class="product-name">'+p.name+'</div><div class="product-price">R$ '+p.price.toLocaleString('pt-BR')+'</div><button class="'+btnClass+'" id="btn-'+p.id+'" onclick="'+btnAction+'">'+btnText+'</button></div></div>';
 }
 
 function renderAll() {
-    for (const cat of ['cozinha', 'sala', 'quarto', 'lavanderia', 'lua', 'divertidas']) {
+    for (const cat of ['cozinha', 'sala', 'quarto', 'lavanderia', 'simbolicos']) {
         const grid = document.getElementById('grid-' + cat);
         if (grid) grid.innerHTML = produtos[cat].map(p => renderCard(p, cat)).join('');
     }
     const gridTudo = document.getElementById('grid-tudo');
     if (gridTudo) {
         let allItems = '';
-        const ordem = ['cozinha', 'sala', 'quarto', 'lavanderia', 'lua', 'divertidas'];
+        const ordem = ['cozinha', 'sala', 'quarto', 'lavanderia', 'simbolicos'];
         for (const cat of ordem) {
-            const catLabel = { cozinha: 'Cozinha', sala: 'Sala', quarto: 'Quarto', lavanderia: 'Lavanderia', lua: 'Lua de Mel', divertidas: 'Divertidas' }[cat];
+            const catLabel = { cozinha: 'Cozinha', sala: 'Sala', quarto: 'Quarto', lavanderia: 'Lavanderia', simbolicos: 'Simbólicos' }[cat];
             allItems += '<div class="cat-title" style="grid-column:1/-1;margin-top:8px;">'+catLabel+'</div>';
             allItems += produtos[cat].map(p => renderCard(p, cat)).join('');
         }
@@ -553,10 +547,7 @@ function atualizarCotasDoFirebase() {
     
     // Inicializa cotas se nao existirem (com valores padrao do codigo)
     if (typeof inicializarCotaFirebase === 'function') {
-        produtos.lua.forEach(function(p) {
-            inicializarCotaFirebase(p.id, p.compradas || 0, p.total || 10);
-        });
-        produtos.divertidas.forEach(function(p) {
+        produtos.simbolicos.forEach(function(p) {
             inicializarCotaFirebase(p.id, p.compradas || 0, p.total || 10);
         });
     }
@@ -565,21 +556,8 @@ function atualizarCotasDoFirebase() {
     obterCotasFirebase(function(cotasData) {
         let mudou = false;
         
-        // Atualiza Lua de Mel
-        produtos.lua.forEach(function(p) {
-            if (cotasData[p.id]) {
-                const novaCompradas = cotasData[p.id].compradas !== undefined ? cotasData[p.id].compradas : (cotasData[p.id] || 0);
-                const novoTotal = cotasData[p.id].total !== undefined ? cotasData[p.id].total : 10;
-                if (p.compradas !== novaCompradas || p.total !== novoTotal) {
-                    p.compradas = novaCompradas;
-                    p.total = novoTotal;
-                    mudou = true;
-                }
-            }
-        });
-        
-        // Atualiza Divertidas
-        produtos.divertidas.forEach(function(p) {
+        // Atualiza Simbolicos
+        produtos.simbolicos.forEach(function(p) {
             if (cotasData[p.id]) {
                 const novaCompradas = cotasData[p.id].compradas !== undefined ? cotasData[p.id].compradas : (cotasData[p.id] || 0);
                 const novoTotal = cotasData[p.id].total !== undefined ? cotasData[p.id].total : 10;
