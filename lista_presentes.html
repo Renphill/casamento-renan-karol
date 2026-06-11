@@ -543,6 +543,66 @@ function showToast(msg) {
 
 updateCartBadge();
 renderAll();
+
+// ===== ATUALIZAR COTAS DO FIREBASE =====
+function atualizarCotasDoFirebase() {
+    if (typeof obterCotasFirebase !== 'function') {
+        setTimeout(atualizarCotasDoFirebase, 1000);
+        return;
+    }
+    
+    // Inicializa cotas se nao existirem
+    const todasCotas = [];
+    produtos.lua.forEach(function(p) { todasCotas.push(p.id); });
+    produtos.divertidas.forEach(function(p) { todasCotas.push(p.id); });
+    todasCotas.forEach(function(id) {
+        if (typeof inicializarCotaFirebase === 'function') {
+            inicializarCotaFirebase(id, 10);
+        }
+    });
+    
+    // Ouve mudancas em tempo real
+    obterCotasFirebase(function(cotasData) {
+        let mudou = false;
+        
+        // Atualiza Lua de Mel
+        produtos.lua.forEach(function(p) {
+            if (cotasData[p.id]) {
+                const novaCompradas = cotasData[p.id].compradas !== undefined ? cotasData[p.id].compradas : (cotasData[p.id] || 0);
+                const novoTotal = cotasData[p.id].total !== undefined ? cotasData[p.id].total : 10;
+                if (p.compradas !== novaCompradas || p.total !== novoTotal) {
+                    p.compradas = novaCompradas;
+                    p.total = novoTotal;
+                    mudou = true;
+                }
+            }
+        });
+        
+        // Atualiza Divertidas
+        produtos.divertidas.forEach(function(p) {
+            if (cotasData[p.id]) {
+                const novaCompradas = cotasData[p.id].compradas !== undefined ? cotasData[p.id].compradas : (cotasData[p.id] || 0);
+                const novoTotal = cotasData[p.id].total !== undefined ? cotasData[p.id].total : 10;
+                if (p.compradas !== novaCompradas || p.total !== novoTotal) {
+                    p.compradas = novaCompradas;
+                    p.total = novoTotal;
+                    mudou = true;
+                }
+            }
+        });
+        
+        // Re-renderiza se mudou
+        if (mudou) {
+            renderAll();
+            console.log('Cotas atualizadas do Firebase:', cotasData);
+        }
+    });
+}
+
+// Aguarda Firebase carregar
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(atualizarCotasDoFirebase, 2000);
+});
 </script>
 </body>
 </html>

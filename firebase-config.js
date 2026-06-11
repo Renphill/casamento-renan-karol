@@ -86,10 +86,41 @@ function salvarCompraFirebase(itens, total, status) {
     });
 }
 
-// Atualizar cota comprada
+// Atualizar cota comprada (incrementa e faz auto-expansao de 5 em 5)
 function registrarCotaFirebase(cotaId, quantidade) {
     return refs.cotas.child(cotaId).transaction(function(current) {
-        return (current || 0) + quantidade;
+        const val = current || { compradas: 0, total: 10 };
+        if (typeof val === 'number') {
+            // Migra formato antigo (numero) para novo formato (objeto)
+            const compradas = val + quantity;
+            let total = 10;
+            while (total <= compradas) total += 5;
+            return { compradas: compradas, total: total };
+        }
+        const compradas = (val.compradas || 0) + quantity;
+        let total = val.total || 10;
+        // Auto-expansao: quando compradas >= total, aumenta de 5 em 5
+        while (total <= compradas) total += 5;
+        return { compradas: compradas, total: total };
+    });
+}
+
+// Obter todas as cotas
+function obterCotasFirebase(callback) {
+    refs.cotas.on('value', function(snapshot) {
+        const dados = {};
+        snapshot.forEach(function(child) {
+            dados[child.key] = child.val();
+        });
+        callback(dados);
+    });
+}
+
+// Inicializar cotas no Firebase (compra os valores padrao)
+function inicializarCotaFirebase(cotaId, totalPadrao) {
+    return refs.cotas.child(cotaId).transaction(function(current) {
+        if (current) return; // Ja existe, nao sobrescreve
+        return { compradas: 0, total: totalPadrao || 10 };
     });
 }
 
