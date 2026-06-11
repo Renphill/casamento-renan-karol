@@ -551,15 +551,15 @@ function atualizarCotasDoFirebase() {
         return;
     }
     
-    // Inicializa cotas se nao existirem
-    const todasCotas = [];
-    produtos.lua.forEach(function(p) { todasCotas.push(p.id); });
-    produtos.divertidas.forEach(function(p) { todasCotas.push(p.id); });
-    todasCotas.forEach(function(id) {
-        if (typeof inicializarCotaFirebase === 'function') {
-            inicializarCotaFirebase(id, 10);
-        }
-    });
+    // Inicializa cotas se nao existirem (com valores padrao do codigo)
+    if (typeof inicializarCotaFirebase === 'function') {
+        produtos.lua.forEach(function(p) {
+            inicializarCotaFirebase(p.id, p.compradas || 0, p.total || 10);
+        });
+        produtos.divertidas.forEach(function(p) {
+            inicializarCotaFirebase(p.id, p.compradas || 0, p.total || 10);
+        });
+    }
     
     // Ouve mudancas em tempo real
     obterCotasFirebase(function(cotasData) {

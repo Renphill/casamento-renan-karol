@@ -116,11 +116,11 @@ function obterCotasFirebase(callback) {
     });
 }
 
-// Inicializar cotas no Firebase (compra os valores padrao)
-function inicializarCotaFirebase(cotaId, totalPadrao) {
+// Inicializar cotas no Firebase (usa valores do codigo como padrao)
+function inicializarCotaFirebase(cotaId, compradasPadrao, totalPadrao) {
     return refs.cotas.child(cotaId).transaction(function(current) {
         if (current) return; // Ja existe, nao sobrescreve
-        return { compradas: 0, total: totalPadrao || 10 };
+        return { compradas: compradasPadrao || 0, total: totalPadrao || 10 };
     });
 }
 

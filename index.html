@@ -1251,41 +1251,32 @@
             if (!mensagens || mensagens.length === 0) return;
             
             const carousel = document.getElementById('mural-carousel');
-            // Limpa mensagens de exemplo se houver mensagens reais
-            if (mensagens.length > 0) {
-                carousel.innerHTML = '';
-            }
+            // Remove apenas mensagens duplicadas (evita adicionar mesma msg 2x)
+            const existingTexts = Array.from(carousel.querySelectorAll('p')).map(p => p.textContent.trim());
             
             mensagens.forEach(function(msg) {
+                const msgTexto = (msg.texto || msg.mensagem || '').trim();
+                // Evita duplicar mensagens ja existentes
+                if (existingTexts.some(t => t.includes(msgTexto))) return;
+                
                 const card = document.createElement('div');
                 card.className = 'msg-card';
+                card.style.borderLeft = '3px solid var(--dourado)';
                 let autor = '';
                 if (msg.nome && msg.nome !== 'Anônimo' && msg.nome !== 'Sem nome') {
                     autor = '<em style="font-size:0.65rem;color:var(--dourado);display:block;margin-top:6px;">- ' + msg.nome.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</em>';
                 } else if (msg.anonimo || msg.nome === 'Anônimo') {
                     autor = '<em style="font-size:0.65rem;color:var(--dourado);display:block;margin-top:6px;">- Anônimo</em>';
                 }
-                card.innerHTML = '<div class="quote">❝</div><p>' + (msg.texto || msg.mensagem || '').replace(/</g, '&lt;').replace(/>/g, '&gt;') + autor + '</p>';
-                carousel.appendChild(card);
+                card.innerHTML = '<div class="quote">❝</div><p>' + msgTexto.replace(/</g, '&lt;').replace(/>/g, '&gt;') + autor + '</p>';
+                // Adiciona as mensagens reais no INICIO do carrossel
+                carousel.insertBefore(card, carousel.firstChild);
             });
             
-            console.log('Mural carregado com ' + mensagens.length + ' mensagens do Firebase');
+            console.log('Mural carregado com ' + mensagens.length + ' mensagens reais + exemplos');
         });
     }
     
     // Carrega mural ao iniciar a página
     document.addEventListener('DOMContentLoaded', function() {
-        // Pequeno delay para garantir que firebase-config.js foi carregado
-        setTimeout(carregarMuralDoFirebase, 1500);
-    });
-
-    // ===== TOAST =====
-    function showToast(msg) {
-        const toast = document.getElementById('toast');
-        toast.textContent = msg;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2500);
-    }
-    </script>
-</body>
-</html>
+        // Pequeno delay 
